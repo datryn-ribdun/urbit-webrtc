@@ -12,12 +12,13 @@ interface VideoProps extends VideoFromStreamProps {
 
 type VideoFromStreamProps = {
   srcObject: MediaStream;
+  showControls?: boolean;
 } & HTMLAttributes<HTMLVideoElement>;
 
 function VideoFromStream(attrs: VideoFromStreamProps) {
   const srcObject = attrs.srcObject;
   const videoRef = useRef<HTMLVideoElement>(null);
-  const childAttrs = { ...attrs, autoPlay: true, ref: videoRef };
+  const childAttrs = { ...attrs, controls: attrs.showControls ?? false, autoPlay: true, ref: videoRef };
   delete childAttrs.srcObject;
 
   useEffect(() => {
@@ -38,14 +39,13 @@ export const Video = ({ size, className, isScreenshare, ...props }: VideoProps) 
   return (
     <div className={
       classNames(
-        'relative bg-gray-500 overflow-hidden', 
         size === 'xs-mini' && 'w-20 sm:w-28 shadow-md rounded-xl',
         size === 'mini' && 'w-32 sm:w-64',
-        size === 'large' && 'w-full lg:rounded-xl',
+        size === 'large' && 'w-full',
         className
       )}
     >
-      <VideoFromStream {...props} className={classNames('absolute w-full h-full object-cover md:object-contain transform')} style={{transform: flipAmt }} />
+      <VideoFromStream {...props} className={classNames('w-full h-full object-cover md:object-contain transform')} style={{ transform: flipAmt }} />
     </div>
   )
 }

@@ -63,9 +63,6 @@ export const useMediaStore = create<MediaStore>((set, get) => ({
       } else{
         set({sharedScreen: await startShareScreen(get())})
       }
-      screenShareState.enabled = !screenShareState.enabled;
-
-      set({sharedScreen: screenShareState});
     }
   },
   devices: [],
@@ -119,7 +116,7 @@ async function startShareScreen(state: MediaStore): Promise<ScreenMedia>{
     track.contentHint = "screenshare";
     state.local.addTrack(track);
     const sender = call.conn?.addTrack(track);
-    (track as Track).sender = sender
+    (track as Track).sender = sender;
     return track as Track;
   }
 
