@@ -12,13 +12,13 @@ interface VideoProps extends VideoFromStreamProps {
 
 type VideoFromStreamProps = {
   srcObject: MediaStream;
-  showControls?: boolean;
+  controls?: boolean;
 } & HTMLAttributes<HTMLVideoElement>;
 
 function VideoFromStream(attrs: VideoFromStreamProps) {
   const srcObject = attrs.srcObject;
   const videoRef = useRef<HTMLVideoElement>(null);
-  const childAttrs = { ...attrs, controls: attrs.showControls ?? false, autoPlay: true, ref: videoRef };
+  const childAttrs = { ...attrs, autoPlay: true, ref: videoRef };
   delete childAttrs.srcObject;
 
   useEffect(() => {

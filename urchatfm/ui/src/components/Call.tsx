@@ -27,12 +27,10 @@ export const Call = ({ connected }: CallProps) => {
   const { local, remote, sharedScreen, video } = useMediaStore(s => ({ local: s.local, remote: s.remote, sharedScreen: s.sharedScreen, video: s.video }));
   const landscape = (video.tracks[0]?.getSettings()?.aspectRatio > 1) || true;
 
-  console.log("num of remote video tracksasd: " + remote.getVideoTracks().length);
   const hasScreenshare = remote.getVideoTracks().length > 1;
-  console.log("has remote screenshare:" + hasScreenshare);
   // lets assume that the camera track is alwasy shared first
-  const cameratrack = remote.getVideoTracks()[0];
-  const audiotrack = remote.getAudioTracks()[0];
+  // const cameratrack = remote.getVideoTracks()[0];
+  // const audiotrack = remote.getAudioTracks()[0];
   // const remoteCamera = new MediaStream([cameratrack,audiotrack]);
 
 
@@ -78,10 +76,9 @@ export const Call = ({ connected }: CallProps) => {
         </div>
         <Video size="large" className="" isScreenshare={false} srcObject={remote} muted={false} />
         {hasScreenshare &&
-          <Video size="large" className="" isScreenshare={true} showControls={true} srcObject={remoteScreenShare} muted={false} />
+          <Video size="large" className="" isScreenshare={true} controls={true} srcObject={remoteScreenShare} muted={false} />
         }
-        {!connected && callStarting()
-        }
+        {!connected && callStarting()}
         <Controls className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" />
       </div>
     </>

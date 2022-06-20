@@ -108,10 +108,17 @@ const prefs = {
 }
 
 async function startShareScreen(state: MediaStore): Promise<ScreenMedia>{
+  console.log("start share screen");
   const media = state.sharedScreen;
   const call = state.call;
 
   const addTrack = (track: MediaStreamTrack) => {
+    track.onended = (event: Event) => {
+      //TODO: this event is triggered when someone clicks the browser "stop sharing button"
+      // currently very buggy for stop sharing screen.
+      console.log(`${event} ON ENDED`);
+      // stopShareScreen(state);
+    };
     console.log('Adding screenshare track to call', track);
     track.contentHint = "screenshare";
     state.local.addTrack(track);
@@ -123,10 +130,11 @@ async function startShareScreen(state: MediaStore): Promise<ScreenMedia>{
   media.tracks = (await navigator.mediaDevices.getDisplayMedia()).getTracks().map(addTrack);
   media.enabled = true;
     
-  return media
+  return media;
 }
 
 async function stopShareScreen(state: MediaStore): Promise<ScreenMedia>{
+  console.log("stop share screen");
   const media = state.sharedScreen;
   const call = state.call;
 
@@ -144,7 +152,7 @@ async function stopShareScreen(state: MediaStore): Promise<ScreenMedia>{
   media.tracks.forEach(removeTrack);
   media.enabled = false;
     
-  return media
+  return media;
 }
 
 async function changeDevice(device: MediaDeviceInfo, type: 'audio' | 'video', state: MediaStore, call: OngoingCall): Promise<Media> {
