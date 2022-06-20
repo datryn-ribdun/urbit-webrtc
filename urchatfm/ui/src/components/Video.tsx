@@ -41,11 +41,11 @@ export const Video = ({ size, className, isScreenshare, ...props }: VideoProps) 
       classNames(
         size === 'xs-mini' && 'w-20 sm:w-28 shadow-md rounded-xl',
         size === 'mini' && 'w-32 sm:w-64',
-        size === 'large' && 'w-full',
+        size === 'large' && 'h-1',
         className
       )}
     >
-      <VideoFromStream {...props} className={classNames('w-full h-full object-cover md:object-contain transform')} style={{ transform: flipAmt }} />
+      <VideoFromStream {...props} className={classNames('h-full w-full object-cover md:object-contain')} style={{ transform: flipAmt }} />
     </div>
   )
 }

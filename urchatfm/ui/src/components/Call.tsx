@@ -28,11 +28,6 @@ export const Call = ({ connected }: CallProps) => {
   const landscape = (video.tracks[0]?.getSettings()?.aspectRatio > 1) || true;
 
   const hasScreenshare = remote.getVideoTracks().length > 1;
-  // lets assume that the camera track is alwasy shared first
-  // const cameratrack = remote.getVideoTracks()[0];
-  // const audiotrack = remote.getAudioTracks()[0];
-  // const remoteCamera = new MediaStream([cameratrack,audiotrack]);
-
 
   var localScreenShare = null;
   var remoteScreenShare = null;
@@ -74,10 +69,12 @@ export const Call = ({ connected }: CallProps) => {
             />
           }
         </div>
-        <Video size="large" className="" isScreenshare={false} srcObject={remote} muted={false} />
-        {hasScreenshare &&
-          <Video size="large" className="" isScreenshare={true} controls={true} srcObject={remoteScreenShare} muted={false} />
-        }
+        <div id="remotevideos" className="h-full w-full flex flex-col">
+          <Video size="large" className="flex-1" isScreenshare={false} srcObject={remote} muted={false} />
+          {hasScreenshare &&
+            <Video size="large" className="flex-1" isScreenshare={true} controls={true} srcObject={remoteScreenShare} muted={false} />
+          }
+        </div>
         {!connected && callStarting()}
         <Controls className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" />
       </div>
