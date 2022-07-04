@@ -22,7 +22,7 @@ npm i
 npm run build
 
 
-echo "Symbolic merge from base-dev and gareden-dev"
+echo "Symbolic merge from base-dev and garden-dev"
 cd $URBIT_REPO/pkg
 rm -rf urchatfm
 ./symbolic-merge.sh base-dev urchatfm
@@ -36,4 +36,7 @@ cp -r $DIR/urchatfm/urbit/* $SHIP_PATH/urchatfm/
 cp -r $DIR/icepond/* $SHIP_PATH/urchatfm/
 cp -r $DIR/switchboard/* $SHIP_PATH/urchatfm/
 
+echo "Go to your ship, and run '|commit %urchatfm'"
+read -p "Press enter when you've done the above."
+echo "Go to your ship, and run '|install our  %urchatfm'"
 

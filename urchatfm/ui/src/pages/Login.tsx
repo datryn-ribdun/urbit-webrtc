@@ -20,9 +20,9 @@ function Login() {
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
-      ship: '~mogtuc-ligrec-datryn-ribdun',
-      url: 'http://10.0.0.87',
-      code: 'bannys-patdun-sivrex-marter'
+      ship: 'zod',
+      url: 'localhost:8080',
+      code: 'lidlut-tabwed-pillex-ridrup'
     }
   });
   const [errTimeout, setErrTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -74,7 +74,7 @@ function Login() {
               id="url" 
               type="text" 
               className="input"
-              defaultValue="localhost:8081"
+              defaultValue="localhost:8080"
               {...register('url')}
               disabled={awaitingUrbit} 
             />
