@@ -142,7 +142,10 @@ export function Urchat() {
             <Chat sendMessage={sendMessage} messages={messages} ready={dataChannelOpen} />
           </Route>
           <Route path="/">
-            <div className="h-full bg-gray-300 lg:rounded-xl" />
+            <div className="h-full bg-gray-300 lg:rounded-xl">
+              <h1 className="mb-6 mx-3 text-3xl font-semibold font-mono">%pals</h1>
+              <PalsList placeCall={placeCall}/>
+            </div>
           </Route>
         </Switch>
       </aside>
