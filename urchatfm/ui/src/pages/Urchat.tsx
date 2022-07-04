@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { deSig } from '@urbit/api';
 import useUrchatStore from '../useUrchatStore';
 import { IncomingCall } from '../components/IncomingCall';
-import { Route, Switch, useHistory } from 'react-router';
+import { Route, Switch, useHistory, Redirect } from 'react-router';
 import { Chat } from '../components/Chat';
 import { Call } from '../components/Call';
 import { Dialer } from '../components/Dialer';
@@ -117,6 +118,13 @@ export function Urchat() {
     console.log(messages, newMessages);
     setMessages(newMessages);
   }, [messages, dataChannel]);
+
+
+  if(location.pathname.includes("/call/user/")){
+    var shipName = location.pathname.slice(location.pathname.lastIndexOf('/') + 1);
+    return <Redirect to="/chat/"></Redirect>
+    placeCall(deSig(shipName));
+  }
 
   return (
     <main className="relative flex flex-col lg:flex-row lg:gap-6 w-full h-full lg:p-8 text-gray-700">
