@@ -1,6 +1,7 @@
 import { deSig } from '@urbit/api';
-import { isValidPatp } from 'urbit-ob';
-import React, { useCallback } from 'react';
+import useUrchatStore from '../useUrchatStore';
+import React, { useEffect, useState } from 'react';
+import { start } from 'repl';
 
 
 interface PalsProps {
@@ -30,18 +31,32 @@ interface PalsListProps {
 
 export const PalsList = ({ placeCall }: PalsListProps) => {
 
+  const {startPals, pals} = useUrchatStore();
+  const [palsList, setPals] = useState<string[]>([]);
+
   const onSubmitCall = (ship: string ) => {
     placeCall(deSig(ship));
   }
 
-  const testShips = ["~zod", "~bus", "~datwet"];
+  useEffect(() => {
+    startPals();
+  }, []);
+
+  const test=async()=>{
+    const listOfPals = await pals.getPals();
+    const incoming = listOfPals["incoming"];
+    const outgoing = listOfPals["outgoing"];
+    const mutuals = Object.keys(outgoing).filter(k => k in incoming)
+    setPals(mutuals);
+  }
+
 
   return (
     <>
-    <h3>Mutuals</h3>
+    <button type="submit" onClick={test} className="button bg-blue-200">Refresh friends list</button>
     {
-      testShips.map((shipName) => {
-        return <PalCaller ship={shipName} placeCall={onSubmitCall} />
+      palsList.map((shipName) => {
+        return <PalCaller key={shipName} ship={shipName} placeCall={onSubmitCall} />
       })
     }
     </>
