@@ -24,6 +24,7 @@ export function Urchat() {
     answerCall: answerCallState,
     placeCall: placeCallState,
     rejectCall,
+    startPals,
     hangup
   } = useUrchatStore();
   const { resetStreams, getDevices } = useMediaStore(s => ({ getDevices: s.getDevices, resetStreams: s.resetStreams }));
@@ -38,6 +39,8 @@ export function Urchat() {
   // Set up callback to update device lists when a new device is added or removed
 
   useEffect(() => {
+    console.log("initialize pals");
+    startPals();
     window.addEventListener('beforeunload', hangup)
     return () => window.removeEventListener('beforeunload', hangup)
   }, [])
@@ -143,7 +146,6 @@ export function Urchat() {
           </Route>
           <Route path="/">
             <div className="h-full bg-gray-300 lg:rounded-xl">
-              <h1 className="mb-6 mx-3 text-3xl font-semibold font-mono">%pals</h1>
               <PalsList placeCall={placeCall}/>
             </div>
           </Route>

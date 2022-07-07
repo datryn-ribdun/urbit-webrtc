@@ -107,7 +107,7 @@ const useUrchatStore = create<UrchatStore>((set, get) => {
       set({ icepond: icepond });
     }),
     startPals: () => set((state) => {
-      console.log("urchat store fetch pals");
+      console.log("initializing Pals");
       const p = new Pals(state.urbit);
       set({pals: p});
     }),
