@@ -9,7 +9,7 @@ import Urbit from "@urbit/http-api";
 import Pals from 'pals'
 import { useMock } from "./util";
 
-const dap = "urchatfm";
+const dap = "campfir";
 
 const mockCall = { peer: "~nocsyx-lassul", dap: "123", uuid: "123" };
 export const mockIncomingCall = {

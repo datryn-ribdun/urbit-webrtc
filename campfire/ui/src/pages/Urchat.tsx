@@ -111,7 +111,7 @@ export const Urchat = observer(() => {
       console.log("placing call");
       setDataChannelOpen(false);
       setMessages([]);
-      const channel = conn.createDataChannel("urchatfm");
+      const channel = conn.createDataChannel("campfire");
       channel.onopen = () => setDataChannelOpen(true);
       channel.onmessage = (evt) => {
         const data = evt.data;
@@ -151,7 +151,7 @@ export const Urchat = observer(() => {
             <div className="flex justify-center items-center w-full h-full bg-pink-100 rounded-xl">
               <div>
                 <h1 className="mb-6 mx-12 text-3xl font-semibold font-mono">
-                  urChatFM
+                  Campfire
                 </h1>
                 <Dialer placeCall={placeCall} />
               </div>
