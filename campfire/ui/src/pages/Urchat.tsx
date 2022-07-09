@@ -140,9 +140,6 @@ export const Urchat = observer(() => {
     [messages, dataChannel]
   );
 
-  // return (
-  //   <h1>TEST</h1>
-  // );
 
   return (
     <main className="relative flex flex-col lg:flex-row lg:gap-6 w-full h-full lg:p-8 text-gray-700">
@@ -151,7 +148,7 @@ export const Urchat = observer(() => {
           <Route path="/old/chat/:id">
             <Call connected={dataChannelOpen} />
           </Route>
-          <Route path="/old">
+          <Route path="/old/">
             <div className="flex justify-center items-center w-full h-full bg-pink-100 rounded-xl">
               <div>
                 <h1 className="mb-6 mx-12 text-3xl font-semibold font-mono">
@@ -172,7 +169,7 @@ export const Urchat = observer(() => {
               ready={dataChannelOpen}
             />
           </Route>
-          <Route path="/old">
+          <Route path="/old/">
             <div className="h-full bg-gray-300 lg:rounded-xl">
               <PalsList placeCall={placeCall}/>
             </div>

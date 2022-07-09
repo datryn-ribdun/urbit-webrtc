@@ -61,6 +61,8 @@ const PalsPartialList = ({pals, headerText, onSubmitCall}:PalsPartialListProps) 
         }
       </>
     )
+  } else{
+    return null;
   }
 }
 
@@ -105,8 +107,8 @@ export const PalsList = ({ placeCall }: PalsListProps) => {
         <button type="submit" onClick={loadPals} className="button bg-blue-200 flex-1">Refresh pals list</button>
         </div>
         <PalsPartialList pals={mutualPalsList} headerText={"Mutuals"} onSubmitCall={onSubmitCall}/>
-        <PalsPartialList pals={outgoingPalsList} headerText={"Ships that haven't added me back"} onSubmitCall={onSubmitCall}/>
-        <PalsPartialList pals={incomingPalsList} headerText={"Ships that added me"} onSubmitCall={onSubmitCall}/>
+        <PalsPartialList pals={outgoingPalsList} headerText={"Outgoing pals"} onSubmitCall={onSubmitCall}/>
+        <PalsPartialList pals={incomingPalsList} headerText={"Incoming pals"} onSubmitCall={onSubmitCall}/>
       </div>
     </>
   );
