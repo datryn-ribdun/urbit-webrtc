@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import styled from "styled-components";
-import { Flex } from "@holium/design-system";
+// import { Flex } from "@holium/design-system";
 import { MediaStore } from "../stores/media";
 import { UrchatStore } from "../stores/urchat";
 import { useStore } from "../stores/root";

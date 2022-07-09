@@ -14,7 +14,7 @@ import { UrchatStore } from "./stores/urchat";
 function App() {
   return (
     <StoreProvider store={rootStore}>
-      <ThemeProvider theme={theme.light}>
+      {/* <ThemeProvider theme={theme.light}> */}
         <BrowserRouter basename={useMock ? undefined : "/apps/campfire"}>
           <Switch>
             <Route path="/" exact>
@@ -25,7 +25,7 @@ function App() {
             </Route>
           </Switch>
         </BrowserRouter>
-      </ThemeProvider>
+      {/* </ThemeProvider> */}
     </StoreProvider>
   );
 }
