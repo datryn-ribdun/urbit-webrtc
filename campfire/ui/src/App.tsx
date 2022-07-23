@@ -15,7 +15,7 @@ function App() {
   return (
     <StoreProvider store={rootStore}>
       <ThemeProvider theme={theme.light}>
-        <BrowserRouter basename={useMock ? undefined : "/apps/campfire"}>
+        <BrowserRouter basename={"/apps/campfire"}>
           <Switch>
             <Route path="/" exact>
               <StartMeetingPage />

@@ -5,21 +5,10 @@ import {
 } from "switchboard";
 import Icepond from "icepond";
 import Urbit from "@urbit/http-api";
-import { useMock } from "../util";
 import { action, makeObservable } from "mobx";
 
 const dap = "campfire";
 
-const mockCall = { peer: "~nocsyx-lassul", dap: "123", uuid: "123" };
-export const mockIncomingCall = {
-  ...mockCall,
-  call: mockCall,
-  urbit: {},
-  configuration: {},
-  answer: () => {},
-  dial: () => {},
-  reject: () => {},
-};
 
 export type Call = {
   peer: string;
@@ -79,9 +68,7 @@ export class UrchatStore implements IUrchatStore {
       }
     );
     console.log("make constructor");
-    this.urbit = useMock
-      ? ({ ship: "", subscribe: async () => {} } as any)
-      : new Urbit("", "");
+    this.urbit = new Urbit("", "");
     // requires <script> tag for /~landscape/js/session.js
     this.urbit.ship = (window as any).ship;
     this.urbit.verbose = true;
@@ -94,7 +81,7 @@ export class UrchatStore implements IUrchatStore {
   @action.bound
   setUrbit(urbit: Urbit) {
     console.log("setting urbit state variable");
-    const instance = useMock ? ({} as Urbit) : urbit;
+    const instance = urbit;
     this.urbitRtcApp.urbit = instance;
     this.urbit = instance;
   }
@@ -199,7 +186,7 @@ export class UrchatStore implements IUrchatStore {
   }
   @action.bound
   hangup() {
-    if (!useMock && this.ongoingCall) {
+    if (this.ongoingCall) {
       this.ongoingCall.conn.close();
     }
     return { ...this, ongoingCall: null };

@@ -2,7 +2,8 @@ import React, { FC, useEffect, useState, useCallback } from "react";
 import { observer } from "mobx-react";
 import { Route, Switch, useHistory } from "react-router";
 
-import { MediaStore } from "../stores/media";
+// import { MediaStore } from "../stores/media";
+// import { UrchatStore } from "../stores/urchat";
 
 import {
   Box,
@@ -13,11 +14,13 @@ import {
   Text,
   TextButton,
   theme,
+  Ship,
+  Search
 } from "@holium/design-system";
 import { Campfire } from "../icons/Campfire";
 import { VideoPlus } from "../icons/VideoPlus";
-import { UrchatStore } from "../stores/urchat";
 import { useStore } from "../stores/root";
+import { PalsListNew } from "../components/PalsListNew";
 
 export interface Message {
   speaker: string;
@@ -25,8 +28,9 @@ export interface Message {
 }
 
 export const StartMeetingPage: FC<any> = observer(() => {
+  console.log("RERENDER START PAGE")
   const [meetingCode, setMeetingCode] = useState("");
-  const { mediaStore, urchatStore } = useStore();
+  const { mediaStore, urchatStore, palsStore } = useStore();
   const [dataChannel, setDataChannel] = useState<RTCDataChannel>(null);
   const [dataChannelOpen, setDataChannelOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -36,6 +40,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
     location.protocol.startsWith("https") || location.hostname === "localhost";
 
   useEffect(() => {
+    palsStore.loadPals();
     window.addEventListener("beforeunload", urchatStore.hangup);
     return () => window.removeEventListener("beforeunload", urchatStore.hangup);
   }, []);
@@ -83,6 +88,10 @@ export const StartMeetingPage: FC<any> = observer(() => {
 
     mediaStore.getDevices(call);
   };
+
+  const callPal = (ship: string) => {
+    console.log("calling your pal: "+ship);
+  }
 
   // ---------------------------------------------------------------
   // ---------------------------------------------------------------
@@ -149,6 +158,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
               </Box>
               New video call
             </Button>
+            <PalsListNew mutuals={palsStore.mutuals} callPal={callPal} />
           </Flex>
         </section>
         <section>
