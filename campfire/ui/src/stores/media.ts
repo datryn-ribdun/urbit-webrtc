@@ -62,7 +62,9 @@ export class MediaStore implements IMediaStore {
     makeObservable(this);
   }
 
+  @action.bound
   async getDevices(call: OngoingCall) {
+    console.log("GET DEVICES");
     const devices = await navigator.mediaDevices?.enumerateDevices();
     const videoDevs = devices.filter((dev) => dev.kind === "videoinput");
     const audioDevs = devices.filter((dev) => dev.kind === "audioinput");
@@ -78,7 +80,7 @@ export class MediaStore implements IMediaStore {
     this.audio = audio;
   }
 
-  @action
+  @action.bound
   resetStreams() {
     this.local = new MediaStream();
     this.remote = new MediaStream();

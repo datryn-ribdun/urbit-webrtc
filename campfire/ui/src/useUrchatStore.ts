@@ -72,6 +72,7 @@ const useUrchatStore = create<UrchatStore>((set, get) => {
     : new Urbit("", "");
   // requires <script> tag for /~landscape/js/session.js
   urbit.ship = (window as any).ship;
+  urbit.verbose = true;
   urbitRtcApp.urbit = urbit;
 
   return {

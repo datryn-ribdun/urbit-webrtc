@@ -31,7 +31,6 @@ export const StartMeetingPage: FC<any> = observer(() => {
   const [dataChannelOpen, setDataChannelOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const { push } = useHistory();
-  console.log(messages);
 
   const isSecure =
     location.protocol.startsWith("https") || location.hostname === "localhost";
@@ -56,16 +55,20 @@ export const StartMeetingPage: FC<any> = observer(() => {
   const placeCall = async (ship: string) => {
     mediaStore.resetStreams();
     console.log("placing call start");
+    console.log(urchatStore);
     const call = await urchatStore.placeCall(ship, (conn) => {
-      console.log("placing call");
+      console.error("place call connection callback");
       setDataChannelOpen(false);
       setMessages([]);
+      console.log("attempting to create conn data channel");
       const channel = conn.createDataChannel("campfire");
       channel.onopen = () => {
+        console.log("channel opened");
         setDataChannelOpen(true);
         push(`/chat/${conn.uuid}`);
       };
       channel.onmessage = (evt) => {
+        console.log("onmessage");
         const data = evt.data;
         const speakerId = ship.replace("~", "");
         setMessages((messages) =>
@@ -76,6 +79,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
       setDataChannel(channel);
       conn.ontrack = onTrack;
     });
+    console.log(call);
 
     mediaStore.getDevices(call);
   };

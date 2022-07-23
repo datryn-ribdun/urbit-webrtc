@@ -16,13 +16,12 @@ type ControlsProps = HTMLAttributes<HTMLDivElement>;
 
 export const Controls = ({ className }: ControlsProps) => {
   const { push } = useHistory();
-  const { audio, video, sharedScreen } = useMediaStore(s => ({ audio: s.audio, video: s.video, sharedScreen: s.sharedScreen }));
+  const { audio, video, sharedScreen, disconnectMedia } = useMediaStore(s => ({ audio: s.audio, video: s.video, sharedScreen: s.sharedScreen, disconnectMedia: s.disconnectMedia }));
   const hangup = useUrchatStore(s => s.hangup);
 
   const leaveCall = useCallback(() => {
     hangup();
-    audio.tracks.forEach(track => track.stop());
-    video.tracks.forEach(track => track.stop());
+    disconnectMedia()
     push('/');
   }, [])
 
@@ -67,6 +66,5 @@ export const Controls = ({ className }: ControlsProps) => {
         <span className="sr-only">Hang up</span>
       </button>
     </div>
-    
   )
 }

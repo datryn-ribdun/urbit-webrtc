@@ -1,4 +1,3 @@
-import create from "zustand";
 import {
   UrbitRTCApp,
   UrbitRTCIncomingCallEvent,
@@ -71,6 +70,7 @@ export class UrchatStore implements IUrchatStore {
     this.urbitRtcApp.addEventListener(
       "incomingcall",
       (incomingCallEvt: UrbitRTCIncomingCallEvent) => {
+        console.log("incoming call evenet");
         if (this.incomingCall === null) {
           this.incomingCall = incomingCallEvt;
         } else {
@@ -78,102 +78,88 @@ export class UrchatStore implements IUrchatStore {
         }
       }
     );
-
+    console.log("make constructor");
     this.urbit = useMock
       ? ({ ship: "", subscribe: async () => {} } as any)
       : new Urbit("", "");
     // requires <script> tag for /~landscape/js/session.js
     this.urbit.ship = (window as any).ship;
+    this.urbit.verbose = true;
     this.urbitRtcApp.urbit = this.urbit;
+    console.log(this.urbit);
+    console.log(this.urbit.ship);
+    this.urbitRtcApp._urbit = this.urbit;
   }
 
-  @action
+  @action.bound
   setUrbit(urbit: Urbit) {
+    console.log("setting urbit state variable");
     const instance = useMock ? ({} as Urbit) : urbit;
     this.urbitRtcApp.urbit = instance;
     this.urbit = instance;
   }
 
-  @action
+  @action.bound
   startIcepond() {
-    if (useMock) {
-      this.icepond = {} as Icepond;
-    }
-    console.log("YOU HAVE AUTHED WITH: " + this.urbit.ship);
-    console.log("attempting icepond");
+    console.log("trying to icepond");
     const icepond = new Icepond(this.urbit);
     // on start
     icepond.oniceserver = (evt) => {
+      console.log("just got a server");
       const newConfig = {
         ...this.configuration,
         iceServers: evt.iceServers,
       };
       console.log("icepond config:");
-      console.log(newConfig);
+      // console.log(newConfig);
       if (this.urbitRtcApp !== null) {
         this.urbitRtcApp.configuration = newConfig;
       }
-      if (this.incomingCall !== null) {
-        this.incomingCall.configuration = newConfig;
-      }
-      if (this.ongoingCall !== null) {
-        this.ongoingCall.conn.setConfiguration(newConfig);
-      }
+      // if (this.incomingCall !== null) {
+      //   this.incomingCall.configuration = newConfig;
+      // // }
+      // if (this.ongoingCall !== null) {
+      //   this.ongoingCall.conn.setConfiguration(newConfig);
+      // }
 
-      return { ...this, configuration: newConfig };
+      this.configuration = newConfig;
+      console.log(this.configuration);
     };
+    console.log("about to init");
     icepond.initialize();
     this.icepond = icepond;
   }
 
-  @action
+  @action.bound
   async placeCall(
     ship: string,
     setHandlers: (conn: UrbitRTCPeerConnection) => void
   ) {
     const { urbitRtcApp, hungup, startIcepond } = this;
-    console.log("placeCall");
     const conn = urbitRtcApp.call(ship, dap);
     setHandlers(conn);
     conn.addEventListener("hungupcall", hungup);
     await conn.initialize();
     const call = { peer: ship, dap: dap, uuid: conn.uuid };
+    console.log("setting parts of call");
+    console.log(this);
+    console.log("starting icepond")
     startIcepond();
+    console.log(this);
 
     const ongoingCall = { conn, call };
-    (this.isCaller = true), (this.ongoingCall = ongoingCall);
-
+    this.isCaller = true
+    this.ongoingCall = ongoingCall;
+    console.log("made it to an ongoing call");
+    console.log(ongoingCall);
     return ongoingCall;
   }
+
+  @action.bound
   async answerCall(
     setHandlers: (ship: string, conn: UrbitRTCPeerConnection) => void
   ) {
-    if (useMock) {
-      const call = {
-        peer: "~lassul-nocsyx",
-        uuid: "000",
-      };
-      setHandlers("~lassul-nocsyx", {
-        ...call,
-        addEventListener: () => {},
-      } as any);
-      const ongoingCall = {
-        conn: {
-          ...call,
-          ontrack: () => {},
-          addTrack: () => {},
-          removeTrack: () => {},
-          close: () => {},
-        },
-        call,
-      } as any;
-
-      this.isCaller = false;
-      this.ongoingCall = ongoingCall;
-      this.incomingCall = null;
-
-      return ongoingCall;
-    }
+    console.log("trying to answer call");
     const { incomingCall, hungup, startIcepond } = this;
     const call = incomingCall.call;
     const conn = incomingCall.answer();
@@ -190,6 +176,7 @@ export class UrchatStore implements IUrchatStore {
     return ongoingCall;
   }
 
+  @action.bound
   async reconnectCall(uuid, setHandlers) {
     const urbit = this.urbit;
     const conn = await UrbitRTCPeerConnection.reconnect({ urbit, uuid });
@@ -205,16 +192,19 @@ export class UrchatStore implements IUrchatStore {
     this.ongoingCall = ongoingCall;
     return ongoingCall;
   }
+  @action.bound
   rejectCall() {
     this.incomingCall.reject();
     return { incomingCall: null };
   }
+  @action.bound
   hangup() {
     if (!useMock && this.ongoingCall) {
       this.ongoingCall.conn.close();
     }
     return { ...this, ongoingCall: null };
   }
+  @action.bound
   hungup() {
     this.ongoingCall = null;
   }
