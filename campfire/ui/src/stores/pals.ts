@@ -1,5 +1,5 @@
 import Urbit from "@urbit/http-api";
-import { action, makeObservable } from "mobx";
+import { action, makeAutoObservable, } from "mobx";
 import Pals from 'pals'
 
 
@@ -11,13 +11,14 @@ export class PalsStore {
   justOutgoing: string[];
 
   constructor() {
-    makeObservable(this);
+    makeAutoObservable(this);
     console.log("PalsStore: constructor");
     this.urbit = new Urbit("", "");
     // requires <script> tag for /~landscape/js/session.js
     this.urbit.ship = (window as any).ship;
     this.urbit.verbose = true;
     this.palsInterface = new Pals(this.urbit);
+    this.loadPals();
   }
 
   @action.bound
@@ -34,6 +35,7 @@ export class PalsStore {
     this.mutuals = mutuals;
     this.justIncoming = incomingPals;
     this.justOutgoing = outgoingPals;
+    console.log("loaded these mutuals: "+mutuals);
   }
 
 }

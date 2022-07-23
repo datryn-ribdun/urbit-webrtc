@@ -36,11 +36,11 @@ export const StartMeetingPage: FC<any> = observer(() => {
   const [messages, setMessages] = useState<Message[]>([]);
   const { push } = useHistory();
 
+
   const isSecure =
     location.protocol.startsWith("https") || location.hostname === "localhost";
 
   useEffect(() => {
-    palsStore.loadPals();
     window.addEventListener("beforeunload", urchatStore.hangup);
     return () => window.removeEventListener("beforeunload", urchatStore.hangup);
   }, []);

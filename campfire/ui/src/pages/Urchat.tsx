@@ -13,7 +13,7 @@ import call from "../assets/enter-call.wav";
 import { TurnOnRinger } from "../components/TurnOnRinger";
 import { SecureWarning } from "../components/SecureWarning";
 import { UrchatStore } from "../stores/urchat";
-import { PalsList } from '../components/PalsList';
+import { PalsList } from '../components/PalsListOld';
 
 export interface Message {
   speaker: string;

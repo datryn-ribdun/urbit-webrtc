@@ -5,7 +5,7 @@ import {
 } from "switchboard";
 import Icepond from "icepond";
 import Urbit from "@urbit/http-api";
-import { action, makeObservable } from "mobx";
+import { action, makeObservable, makeAutoObservable } from "mobx";
 
 const dap = "campfire";
 
