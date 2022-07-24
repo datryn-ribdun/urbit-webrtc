@@ -191,7 +191,7 @@ class UrbitRTCPeerConnection extends RTCPeerConnection {
       if((evt.candidate !== null) && this.canTrickleIceCandidates) {
         this.signallingReadyPromise.then(() => { 
           if(this.urbit.verbose) {
-            console.log("Sending ICE candidate for address ${evt.candidate.address}:${evt.candidate.port}");
+            console.log(`Sending ICE candidate for address ${evt.candidate?.address}:${evt.candidate?.port}`);
           };
           this.urbit.poke({ app: 'switchboard', mark: 'switchboard-from-client', json: { 'uuid': this.uuid, 'tag': 'icecandidate', ...evt.candidate?.toJSON() } }) }).catch(err => this.closeWithError(err));
         };

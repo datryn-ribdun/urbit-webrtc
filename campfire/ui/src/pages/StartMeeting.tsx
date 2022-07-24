@@ -21,6 +21,9 @@ import { useStore } from "../stores/root";
 import { PalsList } from "../components/PalsList";
 import { SecureWarning } from "../components/SecureWarning";
 import { IncomingCall } from "../components/IncomingCall";
+import { trace } from "mobx"
+import call from "../assets/enter-call.wav";
+
 
 export interface Message {
   speaker: string;
@@ -28,12 +31,31 @@ export interface Message {
 }
 
 export const StartMeetingPage: FC<any> = observer(() => {
-  console.log("RERENDER START PAGE")
+  // trace(true);
+  console.log("RERENDER START PAGE");
   const [meetingCode, setMeetingCode] = useState("");
   const { mediaStore, urchatStore, palsStore } = useStore();
   const [dataChannel, setDataChannel] = useState<RTCDataChannel>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const { push } = useHistory();
+
+
+  useEffect(() => {
+    if (isSecure && urchatStore.ongoingCall) {
+      const audio = new Audio(call);
+      audio.volume = 0.3;
+      audio.play();
+      push(`/chat/${urchatStore.ongoingCall.conn.uuid}`);
+
+      const updateDevices = () => mediaStore.getDevices(urchatStore.ongoingCall);
+      navigator.mediaDevices.addEventListener("devicechange", updateDevices);
+      return () =>
+        navigator.mediaDevices.removeEventListener(
+          "devicechange",
+          updateDevices
+        );
+    }
+  }, [urchatStore.ongoingCall]);
 
 
   const isSecure =
@@ -53,7 +75,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
     remote.addTrack(evt.track);
     // TODO: shouldn't need to set state on this
     // only doing it because it forces a rerender which I need to display shared screens that come in
-    mediaStore.remote = remote;
+    mediaStore.setRemote(remote);
   }, []);
 
   const placeCall = async (ship: string) => {
@@ -69,7 +91,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
       channel.onopen = () => {
         // called when we the connection to the peer is open - aka the call has started
         console.log("channel opened");
-      urchatStore.setDataChannelOpen(true);
+        urchatStore.setDataChannelOpen(true);
         push(`/chat/${conn.uuid}`);
       };
       channel.onmessage = (evt) => {
@@ -91,6 +113,29 @@ export const StartMeetingPage: FC<any> = observer(() => {
     placeCall(deSig(ship));
   }
 
+const answerCall = async () => {
+    mediaStore.resetStreams();
+
+    const call = await urchatStore.answerCall((peer, conn) => {
+      urchatStore.setDataChannelOpen(false);
+      setMessages([]);
+      conn.addEventListener("datachannel", (evt) => {
+        const channel = evt.channel;
+        channel.onopen = () => urchatStore.setDataChannelOpen(true);
+        channel.onmessage = (evt) => {
+          const data = evt.data;
+          setMessages((messages) =>
+            [{ speaker: peer, message: data }].concat(messages)
+          );
+          console.log("channel message", data);
+        };
+        setDataChannel(channel);
+      });
+
+      conn.ontrack = onTrack;
+    });
+    mediaStore.getDevices(call);
+  }
   // ---------------------------------------------------------------
   // ---------------------------------------------------------------
   // ---------------------------------------------------------------
@@ -169,7 +214,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
       {urchatStore.incomingCall && (
         <IncomingCall
           caller={urchatStore.incomingCall?.call.peer}
-          answerCall={() => urchatStore.answerCall}
+          answerCall={answerCall}
           rejectCall={() => urchatStore.rejectCall}
         />
       )}

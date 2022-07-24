@@ -1,22 +1,24 @@
 import React, { ChangeEvent } from 'react';
-import { useStore } from '../stores/root';
+import { useMediaStore } from '../useMediaStore';
+import useUrchatStore from '../useUrchatStore';
 
 
 
 // eslint-disable-next-line
 export function MediaInputOld() {
-  const { mediaStore, urchatStore } = useStore();
-  const videoDevices = mediaStore.devices.filter(dev => dev.kind === 'videoinput');
-  const audioDevices = mediaStore.devices.filter(dev => dev.kind === 'audioinput');
+  const { ongoingCall } = useUrchatStore();
+  const { audio, video, devices } = useMediaStore();
+  const videoDevices = devices.filter(dev => dev.kind === 'videoinput');
+  const audioDevices = devices.filter(dev => dev.kind === 'audioinput');
 
   const onVideoChange = (evt: ChangeEvent<HTMLSelectElement>) => {
     const device = videoDevices[parseInt(evt.target.value)];
-    mediaStore.video.changeDevice(device, urchatStore.ongoingCall);
+    video.changeDevice(device, ongoingCall);
   };
 
   const onAudioChange = (evt: ChangeEvent<HTMLSelectElement>) => {
     const device = audioDevices[parseInt(evt.target.value)];
-    mediaStore.audio.changeDevice(device, urchatStore.ongoingCall);
+    audio.changeDevice(device, ongoingCall);
   };
 
   return (

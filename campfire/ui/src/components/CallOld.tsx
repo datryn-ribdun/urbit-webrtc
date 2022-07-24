@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import React from "react";
 import { useMediaStore } from "../useMediaStore";
-import { Controls } from "./Controls";
+import { ControlsOld } from "./ControlsOld";
 import { Spinner } from "./Spinner";
 import { Video } from "./Video";
 
@@ -76,7 +76,7 @@ export const CallOld = ({ connected }: CallProps) => {
           }
         </div>
         {!connected && callStarting()}
-        <Controls className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" />
+        <ControlsOld className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" />
       </div>
     </>
   )

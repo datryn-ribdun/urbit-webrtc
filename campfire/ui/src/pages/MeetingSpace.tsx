@@ -49,6 +49,9 @@ export const MeetingSpace: FC<any> = observer(() => {
               <Text fontSize={5} fontWeight={400} opacity={0.9}>Please wait while your ship connects to the call...</Text>
             </Flex>
           )}
+          {urchatStore.dataChannelOpen && (
+            <CallOld connected={true} />
+          )}
         </Flex>
         <Flex
           width="25%"

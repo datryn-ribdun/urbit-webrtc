@@ -11,18 +11,17 @@ import { useMediaStore } from '../useMediaStore';
 import useUrchatStore from '../useUrchatStore';
 import { IconToggle } from './IconToggle';
 import { MediaInputOld } from './MediaInput';
-import { useStore } from '../stores/root';
 
 type ControlsProps = HTMLAttributes<HTMLDivElement>;
 
-export const Controls = ({ className }: ControlsProps) => {
+export const ControlsOld = ({ className }: ControlsProps) => {
   const { push } = useHistory();
-  const { mediaStore, urchatStore } = useStore();
-
+  const { audio, video, sharedScreen, disconnectMedia } = useMediaStore(s => ({ audio: s.audio, video: s.video, sharedScreen: s.sharedScreen, disconnectMedia: s.disconnectMedia }));
+  const hangup = useUrchatStore(s => s.hangup);
 
   const leaveCall = useCallback(() => {
-    urchatStore.hangup();
-    // disconnectMedia()
+    hangup();
+    disconnectMedia()
     push('/');
   }, [])
 
@@ -30,21 +29,21 @@ export const Controls = ({ className }: ControlsProps) => {
     <div className={classNames('flex justify-center p-3 space-x-3', className)}>
       <IconToggle 
         className="w-10 h-10" 
-        pressed={mediaStore.video.enabled} 
-        onPressedChange={mediaStore.video.toggle}
+        pressed={video.enabled} 
+        onPressedChange={video.toggle}
       >
         <Camera className="w-6 h-6" primary="fill-current opacity-80" secondary="fill-current" />
         <span className="sr-only">Video</span>
       </IconToggle>
       <IconToggle 
         className="w-10 h-10" 
-        pressed={mediaStore.audio.enabled} 
-        onPressedChange={mediaStore.audio.toggle}
+        pressed={audio.enabled} 
+        onPressedChange={audio.toggle}
       >
         <Mic className="w-6 h-6" primary="fill-current opacity-80" secondary="fill-current" />
         <span className="sr-only">Audio</span>
       </IconToggle>
-      {/* <IconToggle 
+      <IconToggle 
         className="w-10 h-10" 
         pressed={!sharedScreen.enabled} 
         onPressedChange={sharedScreen.toggle}
@@ -52,7 +51,7 @@ export const Controls = ({ className }: ControlsProps) => {
       >
         <Screenshare className="w-6 h-6" primary="fill-current opacity-80" secondary="fill-current" />
         <span className="sr-only">Screenshare</span>
-      </IconToggle> */}
+      </IconToggle>
       <Dialog>
         <DialogTrigger className="flex justify-center items-center w-10 h-10 text-gray-200 bg-gray-700 rounded-full default-ring">
           <SettingsIcon className="w-6 h-6" primary="fill-current opacity-80" secondary="fill-current" />

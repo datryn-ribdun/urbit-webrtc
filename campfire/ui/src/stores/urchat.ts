@@ -5,7 +5,7 @@ import {
 } from "switchboard";
 import Icepond from "icepond";
 import Urbit from "@urbit/http-api";
-import { action, makeObservable, makeAutoObservable } from "mobx";
+import { action, makeObservable, observable, runInAction, makeAutoObservable, ObservableSet } from "mobx";
 
 const dap = "campfire";
 
@@ -56,25 +56,19 @@ export class UrchatStore implements IUrchatStore {
   isCaller: boolean;
 
   constructor() {
-    makeObservable(this);
     this.configuration = { iceServers: [] };
-    this.urbitRtcApp = new UrbitRTCApp(dap, this.configuration);
-    this.urbitRtcApp.addEventListener(
-      "incomingcall",
-      (incomingCallEvt: UrbitRTCIncomingCallEvent) => {
-        console.log("incoming call evenet");
-        if (this.incomingCall === null) {
-          this.incomingCall = incomingCallEvt;
-        } else {
-          incomingCallEvt.reject();
-        }
-      }
-    );
     console.log("make constructor");
     this.urbit = new Urbit("", "");
     // requires <script> tag for /~landscape/js/session.js
     this.urbit.ship = (window as any).ship;
     this.urbit.verbose = true;
+    this.urbitRtcApp = new UrbitRTCApp(dap, this.configuration);
+    this.urbitRtcApp.addEventListener(
+      "incomingcall",
+      (evt: UrbitRTCIncomingCallEvent) => {
+        this.handleIncomingCall(evt);
+      }
+    );
     this.urbitRtcApp.urbit = this.urbit;
     console.log(this.urbit);
     console.log(this.urbit.ship);
@@ -83,9 +77,29 @@ export class UrchatStore implements IUrchatStore {
     this.incomingCall = null;
     this.isCaller = false;
     this.dataChannelOpen = false;
+
+    makeObservable(this, {
+      configuration: observable,
+      urbitRtcApp: observable,
+      urbit: observable,
+      icepond: observable,
+      ongoingCall: observable,
+      incomingCall: observable,
+      isCaller: observable,
+      dataChannelOpen: observable,
+      setUrbit: action.bound,
+      handleIncomingCall: action.bound,
+      setDataChannelOpen: action.bound,
+      startIcepond: action.bound,
+      placeCall: action.bound,
+      answerCall: action.bound,
+      reconnectCall: action.bound,
+      rejectCall: action.bound,
+      hangup: action.bound,
+      hungup: action.bound,
+    });
   }
 
-  @action.bound
   setUrbit(urbit: Urbit) {
     console.log("setting urbit state variable");
     const instance = urbit;
@@ -93,12 +107,18 @@ export class UrchatStore implements IUrchatStore {
     this.urbit = instance;
   }
 
-  @action.bound
+  handleIncomingCall(incomingCallEvt: UrbitRTCIncomingCallEvent) {
+    if (this.incomingCall === null) {
+      this.incomingCall = incomingCallEvt;
+    } else {
+      incomingCallEvt.reject();
+    }
+  }
+
   setDataChannelOpen(value: boolean) {
     this.dataChannelOpen = value;
   }
 
-  @action.bound
   startIcepond() {
     console.log("trying to icepond");
     const icepond = new Icepond(this.urbit);
@@ -125,7 +145,6 @@ export class UrchatStore implements IUrchatStore {
     this.icepond = icepond;
   }
 
-  @action.bound
   async placeCall(
     ship: string,
     setHandlers: (conn: UrbitRTCPeerConnection) => void
@@ -138,12 +157,13 @@ export class UrchatStore implements IUrchatStore {
     const call = { peer: ship, dap: dap, uuid: conn.uuid };
     startIcepond();
     const ongoingCall = { conn, call };
-    this.isCaller = true
-    this.ongoingCall = ongoingCall;
+    runInAction(() => {
+      this.isCaller = true
+      this.ongoingCall = ongoingCall;
+    })
     return ongoingCall;
   }
 
-  @action.bound
   async answerCall(
     setHandlers: (ship: string, conn: UrbitRTCPeerConnection) => void
   ) {
@@ -157,14 +177,15 @@ export class UrchatStore implements IUrchatStore {
     startIcepond();
 
     const ongoingCall = { conn, call };
-    this.isCaller = false;
-    this.ongoingCall = ongoingCall;
-    this.incomingCall = null;
+    runInAction(() => {
+      this.isCaller = false;
+      this.ongoingCall = ongoingCall;
+      this.incomingCall = null;
+    })
 
     return ongoingCall;
   }
 
-  @action.bound
   async reconnectCall(uuid, setHandlers) {
     const urbit = this.urbit;
     const conn = await UrbitRTCPeerConnection.reconnect({ urbit, uuid });
@@ -180,19 +201,17 @@ export class UrchatStore implements IUrchatStore {
     this.ongoingCall = ongoingCall;
     return ongoingCall;
   }
-  @action.bound
+
   rejectCall() {
     this.incomingCall.reject();
-    return { incomingCall: null };
+    this.incomingCall = null;
   }
-  @action.bound
   hangup() {
     if (this.ongoingCall) {
       this.ongoingCall.conn.close();
     }
-    return { ...this, ongoingCall: null };
+    this.ongoingCall = null;
   }
-  @action.bound
   hungup() {
     this.ongoingCall = null;
   }

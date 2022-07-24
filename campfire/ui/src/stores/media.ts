@@ -1,4 +1,5 @@
-import { makeObservable, observable, computed, action } from "mobx";
+import { actOnNotification } from "@urbit/api/dist";
+import { makeObservable, observable, computed, action, runInAction } from "mobx";
 import { useMock } from "../util";
 import { OngoingCall } from "./urchat";
 
@@ -23,17 +24,18 @@ interface IMediaStore {
   devices: MediaDeviceInfo[];
   getDevices: (call: OngoingCall) => Promise<void>;
   resetStreams: () => void;
+  setRemote: (remote: MediaStream) => void;
 }
 
 /**
  * A class that is observable
  */
 export class MediaStore implements IMediaStore {
-  @observable local: MediaStream;
-  @observable remote: MediaStream;
-  @observable video: Media;
-  @observable audio: Media;
-  @observable devices: MediaDeviceInfo[];
+  local: MediaStream;
+  remote: MediaStream;
+  video: Media;
+  audio: Media;
+  devices: MediaDeviceInfo[];
 
   constructor() {
     this.local = new MediaStream();
@@ -59,10 +61,18 @@ export class MediaStore implements IMediaStore {
       },
     };
     this.devices = [];
-    makeObservable(this);
+    makeObservable(this, {
+      local: observable,
+      remote: observable,
+      video: observable,
+      audio: observable,
+      getDevices: action.bound,
+      resetStreams: action.bound,
+      setRemote: action.bound,
+    }
+    );
   }
 
-  @action.bound
   async getDevices(call: OngoingCall) {
     console.log("GET DEVICES");
     const devices = await navigator.mediaDevices?.enumerateDevices();
@@ -72,18 +82,21 @@ export class MediaStore implements IMediaStore {
     // trigger acquisition of microphone and camera permissions
     // via getUserMedia in effects below
     const video = await changeDevice(videoDevs[0], "video", this, call);
-    const audio = useMock
-      ? this.audio
-      : await changeDevice(audioDevs[0], "audio", this, call);
-    this.devices = devices;
-    this.video = video;
-    this.audio = audio;
+    const audio = await changeDevice(audioDevs[0], "audio", this, call);
+    runInAction(() => {
+      this.devices = devices;
+      this.video = video;
+      this.audio = audio;
+    })
   }
 
-  @action.bound
   resetStreams() {
     this.local = new MediaStream();
     this.remote = new MediaStream();
+  }
+
+  setRemote(remote: MediaStream) {
+    this.remote = remote;
   }
 }
 
