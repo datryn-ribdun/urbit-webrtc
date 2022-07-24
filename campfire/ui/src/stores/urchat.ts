@@ -31,6 +31,7 @@ interface IUrchatStore {
   dataChannelOpen: boolean;
   isCaller: boolean;
   setUrbit: (ur: Urbit) => void;
+  setDataChannelOpen: (value: boolean) => void;
   startIcepond: () => void;
   placeCall: (
     ship: string,
@@ -55,7 +56,7 @@ export class UrchatStore implements IUrchatStore {
   isCaller: boolean;
 
   constructor() {
-    makeAutoObservable(this);
+    makeObservable(this);
     this.configuration = { iceServers: [] };
     this.urbitRtcApp = new UrbitRTCApp(dap, this.configuration);
     this.urbitRtcApp.addEventListener(
@@ -90,6 +91,11 @@ export class UrchatStore implements IUrchatStore {
     const instance = urbit;
     this.urbitRtcApp.urbit = instance;
     this.urbit = instance;
+  }
+
+  @action.bound
+  setDataChannelOpen(value: boolean) {
+    this.dataChannelOpen = value;
   }
 
   @action.bound

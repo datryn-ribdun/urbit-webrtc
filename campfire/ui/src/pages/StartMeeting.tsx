@@ -62,14 +62,14 @@ export const StartMeetingPage: FC<any> = observer(() => {
     console.log(urchatStore);
     const call = await urchatStore.placeCall(ship, (conn) => {
       console.error("place call connection callback");
-      urchatStore.dataChannelOpen = false;
+      urchatStore.setDataChannelOpen(false);
       setMessages([]);
       console.log("attempting to create conn data channel");
       const channel = conn.createDataChannel("campfire");
       channel.onopen = () => {
         // called when we the connection to the peer is open - aka the call has started
         console.log("channel opened");
-        urchatStore.dataChannelOpen = true;
+      urchatStore.setDataChannelOpen(true);
         push(`/chat/${conn.uuid}`);
       };
       channel.onmessage = (evt) => {
