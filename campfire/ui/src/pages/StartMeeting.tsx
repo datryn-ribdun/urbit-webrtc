@@ -1,10 +1,8 @@
 import React, { FC, useEffect, useState, useCallback } from "react";
 import { observer } from "mobx-react";
 import { Route, Switch, useHistory } from "react-router";
-
-// import { MediaStore } from "../stores/media";
-// import { UrchatStore } from "../stores/urchat";
-
+import { deSig } from '@urbit/api';
+import { isValidPatp } from 'urbit-ob';
 import {
   Box,
   Button,
@@ -20,7 +18,9 @@ import {
 import { Campfire } from "../icons/Campfire";
 import { VideoPlus } from "../icons/VideoPlus";
 import { useStore } from "../stores/root";
-import { PalsListNew } from "../components/PalsListNew";
+import { PalsList } from "../components/PalsList";
+import { SecureWarning } from "../components/SecureWarning";
+import { IncomingCall } from "../components/IncomingCall";
 
 export interface Message {
   speaker: string;
@@ -32,7 +32,6 @@ export const StartMeetingPage: FC<any> = observer(() => {
   const [meetingCode, setMeetingCode] = useState("");
   const { mediaStore, urchatStore, palsStore } = useStore();
   const [dataChannel, setDataChannel] = useState<RTCDataChannel>(null);
-  const [dataChannelOpen, setDataChannelOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const { push } = useHistory();
 
@@ -63,13 +62,14 @@ export const StartMeetingPage: FC<any> = observer(() => {
     console.log(urchatStore);
     const call = await urchatStore.placeCall(ship, (conn) => {
       console.error("place call connection callback");
-      setDataChannelOpen(false);
+      urchatStore.dataChannelOpen = false;
       setMessages([]);
       console.log("attempting to create conn data channel");
       const channel = conn.createDataChannel("campfire");
       channel.onopen = () => {
+        // called when we the connection to the peer is open - aka the call has started
         console.log("channel opened");
-        setDataChannelOpen(true);
+        urchatStore.dataChannelOpen = true;
         push(`/chat/${conn.uuid}`);
       };
       channel.onmessage = (evt) => {
@@ -84,13 +84,11 @@ export const StartMeetingPage: FC<any> = observer(() => {
       setDataChannel(channel);
       conn.ontrack = onTrack;
     });
-    console.log(call);
-
     mediaStore.getDevices(call);
   };
 
   const callPal = (ship: string) => {
-    console.log("calling your pal: "+ship);
+    placeCall(deSig(ship));
   }
 
   // ---------------------------------------------------------------
@@ -138,8 +136,8 @@ export const StartMeetingPage: FC<any> = observer(() => {
               rightInteractive
               rightIcon={
                 <TextButton
-                  disabled={meetingCode.length < 4}
-                  onClick={() => placeCall(meetingCode)}
+                  disabled={!isValidPatp(`~${deSig(meetingCode)}` || '') && meetingCode.length > 0}
+                  onClick={() => placeCall(deSig(meetingCode))}
                 >
                   <b>Join</b>
                 </TextButton>
@@ -158,7 +156,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
               </Box>
               New video call
             </Button>
-            <PalsListNew mutuals={palsStore.mutuals} callPal={callPal} />
+            <PalsList mutuals={palsStore.mutuals} callPal={callPal} />
           </Flex>
         </section>
         <section>
@@ -167,6 +165,14 @@ export const StartMeetingPage: FC<any> = observer(() => {
           </Flex>
         </section>
       </Flex>
+      {!isSecure && <SecureWarning />}
+      {urchatStore.incomingCall && (
+        <IncomingCall
+          caller={urchatStore.incomingCall?.call.peer}
+          answerCall={() => urchatStore.answerCall}
+          rejectCall={() => urchatStore.rejectCall}
+        />
+      )}
     </Flex>
   );
 });

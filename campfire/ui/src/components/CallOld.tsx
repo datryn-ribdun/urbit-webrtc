@@ -23,7 +23,7 @@ const callStarting = () => {
   )
 }
 
-export const Call = ({ connected }: CallProps) => {
+export const CallOld = ({ connected }: CallProps) => {
   const { local, remote, sharedScreen, video } = useMediaStore(s => ({ local: s.local, remote: s.remote, sharedScreen: s.sharedScreen, video: s.video }));
   const landscape = (video.tracks[0]?.getSettings()?.aspectRatio > 1) || true;
 

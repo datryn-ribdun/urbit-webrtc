@@ -2,12 +2,13 @@
 import { Ship, Button, Flex, Text } from "@holium/design-system";
 import { observer } from "mobx-react";
 import React from "react";
+import { deSig } from '@urbit/api';
 
 interface PalsListProps {
     callPal: (ship: string) => void;
     mutuals: string[];
 }
-export const PalsListNew = observer(({ mutuals, callPal }: PalsListProps) => {
+export const PalsList = observer(({ mutuals, callPal }: PalsListProps) => {
     if (mutuals?.length > 0) {
         return (
             <>
@@ -19,7 +20,7 @@ export const PalsListNew = observer(({ mutuals, callPal }: PalsListProps) => {
                     mutuals.map((shipName) => {
                         return (
                             <Button key={shipName} onClick={() => callPal(shipName)}>
-                                <Ship patp={shipName} />
+                                <Ship patp={`~${deSig(shipName)}`} />
                             </Button>
                         )
                     })

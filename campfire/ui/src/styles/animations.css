@@ -1,0 +1,14 @@
+.animated-fading {
+    animation: fade 3s infinite ease-in-out;
+}
+
+@keyframes fade {
+    0%,
+    100% {
+        opacity: 0
+    }
+
+    50% {
+        opacity: 1
+    }
+}

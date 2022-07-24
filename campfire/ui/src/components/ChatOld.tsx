@@ -9,7 +9,7 @@ interface ChatProps {
   ready: boolean;
 }
 
-export const Chat = ({ sendMessage, messages, ready }: ChatProps) => {
+export const ChatOld = ({ sendMessage, messages, ready }: ChatProps) => {
   const { register, handleSubmit, reset } = useForm({
     defaultValues: { message: '' }
   });

@@ -70,8 +70,7 @@ interface PalsListProps {
   placeCall: (ship: string) => void;
 }
 
-export const PalsList = ({ placeCall }: PalsListProps) => {
-
+export const PalsListOld = ({ placeCall }: PalsListProps) => {
   const { startPals, pals } = useUrchatStore();
   const [mutualPalsList, setMutualPals] = useState<string[]>([]);
   const [outgoingPalsList, setOutgoingPals] = useState<string[]>([]);

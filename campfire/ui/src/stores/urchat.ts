@@ -28,6 +28,7 @@ interface IUrchatStore {
   configuration: RTCConfiguration;
   incomingCall: UrbitRTCIncomingCallEvent;
   ongoingCall: OngoingCall;
+  dataChannelOpen: boolean;
   isCaller: boolean;
   setUrbit: (ur: Urbit) => void;
   startIcepond: () => void;
@@ -50,10 +51,11 @@ export class UrchatStore implements IUrchatStore {
   configuration: RTCConfiguration;
   incomingCall: UrbitRTCIncomingCallEvent;
   ongoingCall: OngoingCall;
+  dataChannelOpen: boolean;
   isCaller: boolean;
 
   constructor() {
-    makeObservable(this);
+    makeAutoObservable(this);
     this.configuration = { iceServers: [] };
     this.urbitRtcApp = new UrbitRTCApp(dap, this.configuration);
     this.urbitRtcApp.addEventListener(
@@ -75,7 +77,11 @@ export class UrchatStore implements IUrchatStore {
     this.urbitRtcApp.urbit = this.urbit;
     console.log(this.urbit);
     console.log(this.urbit.ship);
-    this.urbitRtcApp._urbit = this.urbit;
+    this.icepond = null;
+    this.ongoingCall = null;
+    this.incomingCall = null;
+    this.isCaller = false;
+    this.dataChannelOpen = false;
   }
 
   @action.bound
@@ -97,20 +103,16 @@ export class UrchatStore implements IUrchatStore {
         ...this.configuration,
         iceServers: evt.iceServers,
       };
-      console.log("icepond config:");
-      // console.log(newConfig);
       if (this.urbitRtcApp !== null) {
         this.urbitRtcApp.configuration = newConfig;
       }
-      // if (this.incomingCall !== null) {
-      //   this.incomingCall.configuration = newConfig;
-      // // }
-      // if (this.ongoingCall !== null) {
-      //   this.ongoingCall.conn.setConfiguration(newConfig);
-      // }
-
+      if (this.incomingCall !== null) {
+        this.incomingCall.configuration = newConfig;
+      }
+      if (this.ongoingCall !== null) {
+        this.ongoingCall.conn.setConfiguration(newConfig);
+      }
       this.configuration = newConfig;
-      console.log(this.configuration);
     };
     console.log("about to init");
     icepond.initialize();
@@ -128,17 +130,10 @@ export class UrchatStore implements IUrchatStore {
     conn.addEventListener("hungupcall", hungup);
     await conn.initialize();
     const call = { peer: ship, dap: dap, uuid: conn.uuid };
-    console.log("setting parts of call");
-    console.log(this);
-    console.log("starting icepond")
     startIcepond();
-    console.log(this);
-
     const ongoingCall = { conn, call };
     this.isCaller = true
     this.ongoingCall = ongoingCall;
-    console.log("made it to an ongoing call");
-    console.log(ongoingCall);
     return ongoingCall;
   }
 
