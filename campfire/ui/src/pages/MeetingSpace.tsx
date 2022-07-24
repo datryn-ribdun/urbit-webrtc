@@ -3,7 +3,8 @@ import styled from "styled-components";
 import { Flex, Spinner, Ship, Text } from "@holium/design-system";
 import { useStore } from "../stores/root";
 import { observer } from "mobx-react";
-import { CallOld } from "../components/CallOld";
+import { Chat } from "../components/Chat";
+import { Call } from "../components/Call";
 import { Campfire } from "../icons/Campfire";
 import "../styles/animations.css"
 
@@ -18,7 +19,14 @@ const Main = styled.main`
 
 export const MeetingSpace: FC<any> = observer(() => {
   const { mediaStore, urchatStore } = useStore();
-  const [showSidebar, setShowSidebar] = useState(false);
+  // const [showSidebar, setShowSidebar] = useState(false);
+
+  const sendMessage = (msg: string) => {
+      urchatStore.dataChannel?.send(msg);
+      const newMessages = [{ speaker: "me", message: msg }].concat(urchatStore.messages);
+      console.log(urchatStore.messages, newMessages);
+      urchatStore.setMessages(newMessages);
+  }
 
   return (
     <Flex
@@ -50,7 +58,7 @@ export const MeetingSpace: FC<any> = observer(() => {
             </Flex>
           )}
           {urchatStore.dataChannelOpen && (
-            <CallOld connected={true} />
+            <Call />
           )}
         </Flex>
         <Flex
@@ -63,6 +71,7 @@ export const MeetingSpace: FC<any> = observer(() => {
           <Text fontSize={5} fontWeight={400} opacity={0.9}>Participants</Text>
           <Ship patp={urchatStore.urbit.ship} />
           <Text fontSize={5} fontWeight={400} opacity={0.9} size={20} title="Messages sent over WebRTC">Chat</Text>
+          <Chat ready={urchatStore.dataChannelOpen} messages={urchatStore.messages} sendMessage={sendMessage}/>
         </Flex>
     </Flex>
   );

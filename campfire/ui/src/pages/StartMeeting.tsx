@@ -21,22 +21,13 @@ import { useStore } from "../stores/root";
 import { PalsList } from "../components/PalsList";
 import { SecureWarning } from "../components/SecureWarning";
 import { IncomingCall } from "../components/IncomingCall";
-import { trace } from "mobx"
 import call from "../assets/enter-call.wav";
 
 
-export interface Message {
-  speaker: string;
-  message: string;
-}
-
 export const StartMeetingPage: FC<any> = observer(() => {
-  // trace(true);
   console.log("RERENDER START PAGE");
   const [meetingCode, setMeetingCode] = useState("");
   const { mediaStore, urchatStore, palsStore } = useStore();
-  const [dataChannel, setDataChannel] = useState<RTCDataChannel>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
   const { push } = useHistory();
 
 
@@ -75,8 +66,8 @@ export const StartMeetingPage: FC<any> = observer(() => {
     remote.addTrack(evt.track);
     // TODO: shouldn't need to set state on this
     // only doing it because it forces a rerender which I need to display shared screens that come in
-    mediaStore.setRemote(remote);
-  }, []);
+    // mediaStore.setRemote(remote);
+  }, [mediaStore.remote]);
 
   const placeCall = async (ship: string) => {
     mediaStore.resetStreams();
@@ -85,7 +76,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
     const call = await urchatStore.placeCall(ship, (conn) => {
       console.error("place call connection callback");
       urchatStore.setDataChannelOpen(false);
-      setMessages([]);
+      urchatStore.setMessages([]);
       console.log("attempting to create conn data channel");
       const channel = conn.createDataChannel("campfire");
       channel.onopen = () => {
@@ -98,12 +89,11 @@ export const StartMeetingPage: FC<any> = observer(() => {
         console.log("onmessage");
         const data = evt.data;
         const speakerId = ship.replace("~", "");
-        setMessages((messages) =>
-          [{ speaker: speakerId, message: data }].concat(messages)
-        );
+        const new_messages = [{ speaker: speakerId, message: data }].concat(urchatStore.messages);
+        urchatStore.setMessages(new_messages);
         console.log("channel message from " + speakerId + ": " + data);
       };
-      setDataChannel(channel);
+      urchatStore.setDataChannel(channel);
       conn.ontrack = onTrack;
     });
     mediaStore.getDevices(call);
@@ -113,23 +103,22 @@ export const StartMeetingPage: FC<any> = observer(() => {
     placeCall(deSig(ship));
   }
 
-const answerCall = async () => {
+  const answerCall = async () => {
     mediaStore.resetStreams();
 
     const call = await urchatStore.answerCall((peer, conn) => {
       urchatStore.setDataChannelOpen(false);
-      setMessages([]);
+      urchatStore.setMessages([]);
       conn.addEventListener("datachannel", (evt) => {
         const channel = evt.channel;
         channel.onopen = () => urchatStore.setDataChannelOpen(true);
         channel.onmessage = (evt) => {
           const data = evt.data;
-          setMessages((messages) =>
-            [{ speaker: peer, message: data }].concat(messages)
-          );
+          const new_messages = [{ speaker: peer, message: data }].concat(urchatStore.messages);
+          urchatStore.setMessages(new_messages);
           console.log("channel message", data);
         };
-        setDataChannel(channel);
+        urchatStore.setDataChannel(channel);
       });
 
       conn.ontrack = onTrack;

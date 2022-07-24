@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import useUrchatStore from "../useUrchatStore";
-import { IncomingCallOld } from "../components/IncomingCallOld";
+// import { IncomingCallOld } from "../components/IncomingCallOld";
 import { Route, Switch, useHistory } from "react-router";
-import { ChatOld } from "../components/ChatOld";
-import { CallOld } from "../components/CallOld";
+// import { ChatOld } from "../components/ChatOld";
+// import { CallOld } from "../components/CallOld";
 import { Dialer } from "../components/Dialer";
 // import { useMediaStore } from '../useMediaStore';
 import { MediaStore } from "../stores/media";
@@ -13,7 +13,7 @@ import call from "../assets/enter-call.wav";
 import { TurnOnRinger } from "../components/TurnOnRinger";
 import { SecureWarning } from "../components/SecureWarning";
 import { UrchatStore } from "../stores/urchat";
-import { PalsListOld } from '../components/PalsListOld';
+// import { PalsListOld } from '../components/PalsListOld';
 
 export interface Message {
   speaker: string;
@@ -146,7 +146,7 @@ export const Urchat = observer(() => {
       <section className="flex-auto lg:flex-1 flex flex-col justify-center h-[50%] lg:h-auto">
         <Switch>
           <Route path="/old/chat/:id">
-            <CallOld connected={dataChannelOpen} />
+            {/* <CallOld connected={dataChannelOpen} /> */}
           </Route>
           <Route path="/old/">
             <div className="flex justify-center items-center w-full h-full bg-pink-100 rounded-xl">
@@ -163,26 +163,26 @@ export const Urchat = observer(() => {
       <aside className="flex-auto lg:flex-none lg:w-[33vw] lg:max-w-sm h-[50%] lg:h-auto">
         <Switch>
           <Route path="/old/chat/:id">
-            <ChatOld
+            {/* <ChatOld
               sendMessage={sendMessage}
               messages={messages}
               ready={dataChannelOpen}
-            />
+            /> */}
           </Route>
           <Route path="/old/">
             <div className="h-full bg-gray-300 lg:rounded-xl">
-              <PalsListOld placeCall={placeCall}/>
+              {/* <PalsListOld placeCall={placeCall}/> */}
             </div>
           </Route>
         </Switch>
       </aside>
-      {incomingCall && (
+      {/* {incomingCall && (
         <IncomingCallOld
           caller={incomingCall.call.peer}
           answerCall={answerCall}
           rejectCall={rejectCall}
         />
-      )}
+      )} */}
       {isSecure && <TurnOnRinger />}
       {!isSecure && <SecureWarning />}
     </main>

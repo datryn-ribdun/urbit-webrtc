@@ -20,6 +20,10 @@ export interface OngoingCall {
   conn: UrbitRTCPeerConnection;
   call: Call;
 }
+export interface Message {
+  speaker: string;
+  message: string;
+}
 
 interface IUrchatStore {
   urbit: Urbit | null;
@@ -28,8 +32,10 @@ interface IUrchatStore {
   configuration: RTCConfiguration;
   incomingCall: UrbitRTCIncomingCallEvent;
   ongoingCall: OngoingCall;
+  dataChannel: RTCDataChannel;
   dataChannelOpen: boolean;
   isCaller: boolean;
+  messages: Message[];
   setUrbit: (ur: Urbit) => void;
   setDataChannelOpen: (value: boolean) => void;
   startIcepond: () => void;
@@ -43,6 +49,7 @@ interface IUrchatStore {
   rejectCall: () => void;
   hangup: () => void;
   hungup: () => void;
+  setMessages: (new_mesages: Message[]) => void;
 }
 
 export class UrchatStore implements IUrchatStore {
@@ -52,8 +59,10 @@ export class UrchatStore implements IUrchatStore {
   configuration: RTCConfiguration;
   incomingCall: UrbitRTCIncomingCallEvent;
   ongoingCall: OngoingCall;
+  dataChannel: RTCDataChannel;
   dataChannelOpen: boolean;
   isCaller: boolean;
+  messages: Message[]
 
   constructor() {
     this.configuration = { iceServers: [] };
@@ -61,7 +70,6 @@ export class UrchatStore implements IUrchatStore {
     this.urbit = new Urbit("", "");
     // requires <script> tag for /~landscape/js/session.js
     this.urbit.ship = (window as any).ship;
-    this.urbit.verbose = true;
     this.urbitRtcApp = new UrbitRTCApp(dap, this.configuration);
     this.urbitRtcApp.addEventListener(
       "incomingcall",
@@ -76,7 +84,9 @@ export class UrchatStore implements IUrchatStore {
     this.ongoingCall = null;
     this.incomingCall = null;
     this.isCaller = false;
+    this.dataChannel = null;
     this.dataChannelOpen = false;
+    this.messages = [];
 
     makeObservable(this, {
       configuration: observable,
@@ -87,8 +97,10 @@ export class UrchatStore implements IUrchatStore {
       incomingCall: observable,
       isCaller: observable,
       dataChannelOpen: observable,
+      messages: observable,
       setUrbit: action.bound,
       handleIncomingCall: action.bound,
+      setDataChannel: action.bound,
       setDataChannelOpen: action.bound,
       startIcepond: action.bound,
       placeCall: action.bound,
@@ -97,6 +109,7 @@ export class UrchatStore implements IUrchatStore {
       rejectCall: action.bound,
       hangup: action.bound,
       hungup: action.bound,
+      setMessages: action.bound,
     });
   }
 
@@ -115,6 +128,11 @@ export class UrchatStore implements IUrchatStore {
     }
   }
 
+  setDataChannel(value: RTCDataChannel) {
+    console.log("setting data channel");
+    console.log(value);
+    this.dataChannel = value;
+  }
   setDataChannelOpen(value: boolean) {
     this.dataChannelOpen = value;
   }
@@ -214,5 +232,10 @@ export class UrchatStore implements IUrchatStore {
   }
   hungup() {
     this.ongoingCall = null;
+  }
+
+  setMessages(new_messages: Message[]) {
+    console.log("setting messages to: "+new_messages);
+    this.messages = new_messages;
   }
 }

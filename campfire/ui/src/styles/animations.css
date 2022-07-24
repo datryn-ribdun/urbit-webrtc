@@ -1,11 +1,14 @@
-.animated-fading {
+#fire {
     animation: fade 3s infinite ease-in-out;
+}
+#inner-flame {
+    animation: fade 2s infinite ease-in-out;
 }
 
 @keyframes fade {
     0%,
     100% {
-        opacity: 0
+        opacity: 0.3
     }
 
     50% {
