@@ -1,7 +1,7 @@
-#fire {
+.animate #fire {
     animation: fade 3s infinite ease-in-out;
 }
-#inner-flame {
+.animate #inner-flame {
     animation: fade 2s infinite ease-in-out;
 }
 

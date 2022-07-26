@@ -16,15 +16,24 @@ interface Media {
   changeDevice: (device: MediaDeviceInfo, call: OngoingCall) => void;
 }
 
+interface ScreenMedia {
+  enabled: boolean;
+  tracks: Track[];
+  toggle: (call: OngoingCall) => void;
+}
+
 interface IMediaStore {
   local: MediaStream;
   remote: MediaStream;
+  remoteVideoTrackCounter: number;
   video: Media;
   audio: Media;
+  sharedScreen: ScreenMedia;
   devices: MediaDeviceInfo[];
   getDevices: (call: OngoingCall) => Promise<void>;
+  toggleScreenShare: (call: OngoingCall) => Promise<void>;
   resetStreams: () => void;
-  setRemote: (remote: MediaStream) => void;
+  addTrackToRemote: (track: MediaStreamTrack) => void;
 }
 
 /**
@@ -33,13 +42,16 @@ interface IMediaStore {
 export class MediaStore implements IMediaStore {
   local: MediaStream;
   remote: MediaStream;
+  remoteVideoTrackCounter: number;
   video: Media;
   audio: Media;
+  sharedScreen: ScreenMedia;
   devices: MediaDeviceInfo[];
 
   constructor() {
     this.local = new MediaStream();
     this.remote = new MediaStream();
+    this.remoteVideoTrackCounter = 0;
     this.video = {
       enabled: true,
       device: null,
@@ -60,15 +72,31 @@ export class MediaStore implements IMediaStore {
         this.audio = toggleMedia(this.audio);
       },
     };
+    this.sharedScreen = {
+      enabled: false,
+      tracks: [],
+      toggle: async (call: OngoingCall) => {
+        var screenShareState = this.sharedScreen;
+        if (screenShareState.enabled) {
+          this.sharedScreen = await stopShareScreen(this, call);
+        } else {
+          this.sharedScreen = await startShareScreen(this, call);
+        }
+      }
+    };
     this.devices = [];
     makeObservable(this, {
       local: observable,
       remote: observable,
+      remoteVideoTrackCounter: observable,
       video: observable,
       audio: observable,
+      sharedScreen: observable,
+      devices: observable,
       getDevices: action.bound,
+      toggleScreenShare: action.bound,
       resetStreams: action.bound,
-      setRemote: action.bound,
+      addTrackToRemote: action.bound,
     }
     );
   }
@@ -90,14 +118,52 @@ export class MediaStore implements IMediaStore {
     })
   }
 
+  async toggleScreenShare(call: OngoingCall) {
+    if (this.sharedScreen.enabled) {
+      console.log("stop share screen");
+      const removeTrack = (track: Track) => {
+        console.log('Removing screenshare track from call', track);
+        this.local.removeTrack(track);
+        call.conn?.removeTrack(track.sender);
+        track.stop();
+      }
+      runInAction(() => {
+        this.sharedScreen.tracks.forEach(removeTrack);
+        this.sharedScreen.enabled = false;
+      })
+    } else {
+      const addTrack = (track: MediaStreamTrack) => {
+        track.onended = (event: Event) => {
+          //this event is triggered when someone clicks the browser "stop sharing button"
+          console.log(`${event} ON ENDED`);
+          this.toggleScreenShare(call);
+        };
+        console.log('Adding screenshare track to call', track);
+        track.contentHint = "screenshare";
+        this.local.addTrack(track);
+        const sender = call.conn?.addTrack(track);
+        (track as Track).sender = sender;
+        return track as Track;
+      }
+      const t = (await navigator.mediaDevices.getDisplayMedia()).getTracks().map(addTrack);
+      runInAction(() => {
+        this.sharedScreen.tracks = t;
+        this.sharedScreen.enabled = true;
+      })
+    }
+  }
+
   resetStreams() {
     this.local = new MediaStream();
     this.remote = new MediaStream();
   }
 
-  setRemote(remote: MediaStream) {
-    this.remote = remote;
+  addTrackToRemote(track: MediaStreamTrack) {
+    this.remote.addTrack(track);
+    // this is a hack so that state refreshes
+    this.remoteVideoTrackCounter = this.remote.getVideoTracks().length;
   }
+
 }
 
 function toggleMedia(media: Media): Media {
@@ -155,6 +221,52 @@ async function changeDevice(
       : stream.getVideoTracks().map(addTrack);
 
   media.device = device;
+
+  return media;
+}
+
+async function startShareScreen(state: MediaStore, call: OngoingCall): Promise<ScreenMedia> {
+  console.log("start share screen");
+  const media = state.sharedScreen;
+
+  const addTrack = (track: MediaStreamTrack) => {
+    track.onended = (event: Event) => {
+      //TODO: this event is triggered when someone clicks the browser "stop sharing button"
+      // currently very buggy for stop sharing screen.
+      console.log(`${event} ON ENDED`);
+      // stopShareScreen(state);
+    };
+    console.log('Adding screenshare track to call', track);
+    track.contentHint = "screenshare";
+    state.local.addTrack(track);
+    const sender = call.conn?.addTrack(track);
+    (track as Track).sender = sender;
+    return track as Track;
+  }
+
+  media.tracks = (await navigator.mediaDevices.getDisplayMedia()).getTracks().map(addTrack);
+  media.enabled = true;
+
+  return media;
+}
+
+async function stopShareScreen(state: MediaStore, call: OngoingCall): Promise<ScreenMedia> {
+  console.log("stop share screen");
+  const media = state.sharedScreen;
+
+  const removeTrack = (track: Track) => {
+    console.log('Removing screenshare track from call', track);
+    state.local.removeTrack(track);
+    try {
+      call.conn?.removeTrack(track.sender);
+    } catch (err) {
+      console.log(err);
+    }
+    track.stop();
+  }
+
+  media.tracks.forEach(removeTrack);
+  media.enabled = false;
 
   return media;
 }

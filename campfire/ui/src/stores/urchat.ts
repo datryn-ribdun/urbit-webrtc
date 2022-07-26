@@ -36,6 +36,7 @@ interface IUrchatStore {
   dataChannelOpen: boolean;
   isCaller: boolean;
   messages: Message[];
+  wasHungUp: boolean;
   setUrbit: (ur: Urbit) => void;
   setDataChannelOpen: (value: boolean) => void;
   startIcepond: () => void;
@@ -62,7 +63,8 @@ export class UrchatStore implements IUrchatStore {
   dataChannel: RTCDataChannel;
   dataChannelOpen: boolean;
   isCaller: boolean;
-  messages: Message[]
+  messages: Message[];
+  wasHungUp: boolean;
 
   constructor() {
     this.configuration = { iceServers: [] };
@@ -87,6 +89,7 @@ export class UrchatStore implements IUrchatStore {
     this.dataChannel = null;
     this.dataChannelOpen = false;
     this.messages = [];
+    this.wasHungUp = false;
 
     makeObservable(this, {
       configuration: observable,
@@ -176,6 +179,7 @@ export class UrchatStore implements IUrchatStore {
     startIcepond();
     const ongoingCall = { conn, call };
     runInAction(() => {
+      this.wasHungUp = false;
       this.isCaller = true
       this.ongoingCall = ongoingCall;
     })
@@ -196,6 +200,7 @@ export class UrchatStore implements IUrchatStore {
 
     const ongoingCall = { conn, call };
     runInAction(() => {
+      this.wasHungUp = false;
       this.isCaller = false;
       this.ongoingCall = ongoingCall;
       this.incomingCall = null;
@@ -231,7 +236,10 @@ export class UrchatStore implements IUrchatStore {
     this.ongoingCall = null;
   }
   hungup() {
+    console.log("someone hung up on us");
     this.ongoingCall = null;
+    this.dataChannelOpen = false;
+    this.wasHungUp = true;
   }
 
   setMessages(new_messages: Message[]) {

@@ -9,19 +9,21 @@ import { observer } from "mobx-react";
 export const Call = observer(() => {
   const { mediaStore, urchatStore } = useStore();
   const landscape = (mediaStore.video.tracks[0]?.getSettings()?.aspectRatio > 1) || true;
+  console.log("rerender call");
+  const hasRemoteScreenshare = mediaStore.remoteVideoTrackCounter > 1;
 
-  // const hasScreenshare = mediaStore.remote.getVideoTracks().length > 1;
-
-  // var localScreenShare = null;
-  // var remoteScreenShare = null;
-  // if (hasScreenshare) {
-  //   const screensharetrack = mediaStore.remote.getVideoTracks()[1];
-  //   remoteScreenShare = new MediaStream([screensharetrack]);
-  // }
-  // if (mediaStore.sharedScreen.enabled) {
-  //   const screensharetrack = mediaStore.local.getVideoTracks()[1];
-  //   localScreenShare = new MediaStream([screensharetrack]);
-  // }
+  var localScreenShare = null;
+  var remoteScreenShare = null;
+  if (hasRemoteScreenshare) {
+    console.log("has remote screesnahre");
+    const screensharetrack = mediaStore.remote.getVideoTracks()[1];
+    remoteScreenShare = new MediaStream([screensharetrack]);
+  }
+  if (mediaStore.sharedScreen.enabled) {
+    console.log("local screenshare")
+    const screensharetrack = mediaStore.local.getVideoTracks()[1];
+    localScreenShare = new MediaStream([screensharetrack]);
+  }
 
   return (
     <>
@@ -38,7 +40,7 @@ export const Call = observer(() => {
               !landscape && 'aspect-w-9 aspect-h-16'
             )}
           />
-          {/* {mediaStore.sharedScreen.enabled &&
+          {mediaStore.sharedScreen.enabled &&
             <Video
               size={landscape ? 'mini' : 'xs-mini'}
               muted={true}
@@ -50,13 +52,13 @@ export const Call = observer(() => {
                 !landscape && 'aspect-w-9 aspect-h-16'
               )}
             />
-          } */}
+          }
         </div>
         <div id="remotevideos" className="h-full w-full flex flex-col">
           <Video size="large" className="flex-1" isScreenshare={false} srcObject={mediaStore.remote} muted={false} />
-          {/* {hasScreenshare &&
+          {hasRemoteScreenshare &&
             <Video size="large" className="flex-1" isScreenshare={true} controls={true} srcObject={remoteScreenShare} muted={false} />
-          } */}
+          }
         </div>
         <Controls className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" />
       </div>

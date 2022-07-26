@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useState, useCallback } from "react";
+import React, { FC, useEffect, useState, } from "react";
 import { observer } from "mobx-react";
-import { Route, Switch, useHistory } from "react-router";
+import { useHistory } from "react-router";
 import { deSig } from '@urbit/api';
 import { isValidPatp } from 'urbit-ob';
 import {
@@ -60,24 +60,17 @@ export const StartMeetingPage: FC<any> = observer(() => {
   // ---------------------------------------------------------------
   // ---------------------------------------------------------------
 
-  const onTrack = useCallback((evt: Event & { track: MediaStreamTrack }) => {
+  const onTrack = (evt: Event & { track: MediaStreamTrack }) => {
     console.log("Incoming track event", evt);
-    const { remote } = mediaStore;
-    remote.addTrack(evt.track);
-    // TODO: shouldn't need to set state on this
-    // only doing it because it forces a rerender which I need to display shared screens that come in
-    // mediaStore.setRemote(remote);
-  }, [mediaStore.remote]);
+    mediaStore.addTrackToRemote(evt.track);
+  };
 
   const placeCall = async (ship: string) => {
     mediaStore.resetStreams();
     console.log("placing call start");
-    console.log(urchatStore);
     const call = await urchatStore.placeCall(ship, (conn) => {
-      console.error("place call connection callback");
       urchatStore.setDataChannelOpen(false);
       urchatStore.setMessages([]);
-      console.log("attempting to create conn data channel");
       const channel = conn.createDataChannel("campfire");
       channel.onopen = () => {
         // called when we the connection to the peer is open - aka the call has started
@@ -86,7 +79,6 @@ export const StartMeetingPage: FC<any> = observer(() => {
         push(`/chat/${conn.uuid}`);
       };
       channel.onmessage = (evt) => {
-        console.log("onmessage");
         const data = evt.data;
         const speakerId = ship.replace("~", "");
         const new_messages = [{ speaker: speakerId, message: data }].concat(urchatStore.messages);

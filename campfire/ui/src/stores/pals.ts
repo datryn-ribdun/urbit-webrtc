@@ -11,7 +11,6 @@ export class PalsStore {
     justOutgoing: string[];
 
     constructor() {
-        console.log("PalsStore: constructor");
         this.urbit = new Urbit("", "");
         // requires <script> tag for /~landscape/js/session.js
         this.urbit.ship = (window as any).ship;
@@ -23,7 +22,6 @@ export class PalsStore {
 
     @action.bound
     async loadPals() {
-        console.log("PalsStore: loading pals");
         const p = await this.palsInterface.getPals();
         const incoming = p["incoming"];
         const outgoing = p["outgoing"];
@@ -37,7 +35,6 @@ export class PalsStore {
             this.justIncoming = incomingPals;
             this.justOutgoing = outgoingPals;
         })
-        console.log("loaded these mutuals: " + mutuals);
     }
 
 }

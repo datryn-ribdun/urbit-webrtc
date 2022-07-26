@@ -2,9 +2,8 @@ import React, { ChangeEvent } from 'react';
 import { useStore } from '../stores/root';
 
 
-
 // eslint-disable-next-line
-export function MediaInputOld() {
+export function MediaInput() {
   const { mediaStore, urchatStore } = useStore();
   const videoDevices = mediaStore.devices.filter(dev => dev.kind === 'videoinput');
   const audioDevices = mediaStore.devices.filter(dev => dev.kind === 'audioinput');

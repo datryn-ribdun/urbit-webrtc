@@ -1,7 +1,6 @@
-
+import React from "react";
 import { Ship, Button, Flex, Text } from "@holium/design-system";
 import { observer } from "mobx-react";
-import React from "react";
 import { deSig } from '@urbit/api';
 
 interface PalsListProps {
