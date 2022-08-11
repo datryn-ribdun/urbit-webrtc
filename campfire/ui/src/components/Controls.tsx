@@ -21,7 +21,7 @@ export const Controls = observer(({ className }: ControlsProps) => {
 
   const leaveCall = useCallback(() => {
     urchatStore.hangup();
-    // disconnectMedia()
+    mediaStore.stopAllTracks();
     push('/');
   }, [])
 

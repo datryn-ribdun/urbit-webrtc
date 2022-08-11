@@ -89,7 +89,10 @@ export const MeetingSpace: FC<any> = observer(() => {
             variant="custom"
             bg="#F8E390"
             color="#333333"
-            onClick={() => push("/")}
+            onClick={() => {
+              mediaStore.stopAllTracks();
+              push("/")
+            }}
           >Go to Campfire home</Button>
         }
         backdropOpacity={0.3}

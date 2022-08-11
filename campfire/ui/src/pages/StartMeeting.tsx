@@ -22,6 +22,7 @@ import { PalsList } from "../components/PalsList";
 import { SecureWarning } from "../components/SecureWarning";
 import { IncomingCall } from "../components/IncomingCall";
 import call from "../assets/enter-call.wav";
+import { connect } from "http2";
 
 
 export const StartMeetingPage: FC<any> = observer(() => {
@@ -32,7 +33,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
 
 
   useEffect(() => {
-    if (isSecure && urchatStore.ongoingCall) {
+    if (isSecure && urchatStore.ongoingCall?.conn?.uuid) {
       const audio = new Audio(call);
       audio.volume = 0.3;
       audio.play();
@@ -77,7 +78,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
         console.log("channel opened");
         urchatStore.setDataChannelOpen(true);
         //add this because sometimes we get redirected to /chat/undefined
-        if(conn.uuid){
+        if (conn.uuid) {
           push(`/chat/${conn.uuid}`);
         }
       };
