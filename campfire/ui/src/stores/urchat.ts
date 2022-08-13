@@ -180,9 +180,8 @@ export class UrchatStore implements IUrchatStore {
     setHandlers(conn);
     conn.addEventListener("hungupcall", hungup);
     conn.onurbitstatechanged = (ev: Event) => {
-      console.log("CONNECTiON STSATE CHANGE");
       runInAction(() => {
-        this.connectionState = conn.urbitState;
+        this.connectionState = conn?.urbitState;
       })
     }
     await conn.initialize();
@@ -206,9 +205,8 @@ export class UrchatStore implements IUrchatStore {
     const conn = incomingCall.answer();
     conn.addEventListener("hungupcall", hungup);
     conn.onurbitstatechanged = (ev: Event) => {
-      console.log("CONNECTiON STSATE CHANGE");
       runInAction(() => {
-        this.connectionState = conn.urbitState;
+        this.connectionState = conn?.urbitState;
       })
     }
     setHandlers(call.peer, conn);

@@ -49,7 +49,7 @@ export const MeetingSpace: FC<any> = observer(() => {
         justifyContent="center"
         alignItems="center"
       >
-        {!urchatStore.dataChannelOpen && (
+        {(!urchatStore.dataChannelOpen && urchatStore.ongoingCall) && (
           <Flex
             flexDirection="column"
             width="100%"
@@ -59,17 +59,21 @@ export const MeetingSpace: FC<any> = observer(() => {
             <Campfire className="animate" />
             {
               (urchatStore.connectionState == "dialing") &&
-              <Text fontSize={5} fontWeight={400} opacity={0.9}>Dialing {"~" + deSig(urchatStore.ongoingCall.call.peer)}....</Text>
+              <Text fontSize={5} fontWeight={400} opacity={0.9}>Dialing <b>{"~" + deSig(urchatStore.ongoingCall.call.peer)}</b>...</Text>
             }
             {
               (urchatStore.connectionState == "ringing") &&
-              <Text fontSize={5} fontWeight={400} opacity={0.9}>Waiting for {"~" + deSig(urchatStore.ongoingCall.call.peer)} to answer the call...</Text>
+              <Text fontSize={5} fontWeight={400} opacity={0.9}>Waiting for <b>{"~" + deSig(urchatStore.ongoingCall.call.peer)}</b> to answer the call...</Text>
 
+            }
+            {
+              (urchatStore.connectionState == "answering") &&
+              <Text fontSize={5} fontWeight={400} opacity={0.9}>Answering <b>{"~" + deSig(urchatStore.ongoingCall.call.peer)}'s</b> call...</Text>
             }
             {
               urchatStore.connectionState.includes("connected") && (
                 <>
-                  <Text fontSize={5} fontWeight={400} opacity={0.9}>Please wait while you connect to {"~" + deSig(urchatStore.ongoingCall.call.peer)}...</Text>
+                  <Text fontSize={5} fontWeight={400} opacity={0.9}>Please wait while you connect to <b>{"~" + deSig(urchatStore.ongoingCall.call.peer)}</b>...</Text>
                   <Text fontSize={2} fontWeight={200} opacity={0.9}>may take a minute to start this p2p connection</Text>
                 </>
               )
