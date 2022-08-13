@@ -57,7 +57,23 @@ export const MeetingSpace: FC<any> = observer(() => {
             alignItems="center"
           >
             <Campfire className="animate" />
-            <Text fontSize={5} fontWeight={400} opacity={0.9}>Please wait while your ship connects to the call...</Text>
+            {
+              (urchatStore.connectionState == "dialing") &&
+              <Text fontSize={5} fontWeight={400} opacity={0.9}>Dialing {"~" + deSig(urchatStore.ongoingCall.call.peer)}....</Text>
+            }
+            {
+              (urchatStore.connectionState == "ringing") &&
+              <Text fontSize={5} fontWeight={400} opacity={0.9}>Waiting for {"~" + deSig(urchatStore.ongoingCall.call.peer)} to answer the call...</Text>
+
+            }
+            {
+              urchatStore.connectionState.includes("connected") && (
+                <>
+                  <Text fontSize={5} fontWeight={400} opacity={0.9}>Please wait while you connect to {"~" + deSig(urchatStore.ongoingCall.call.peer)}...</Text>
+                  <Text fontSize={2} fontWeight={200} opacity={0.9}>may take a minute to start this p2p connection</Text>
+                </>
+              )
+            }
           </Flex>
         )}
         {urchatStore.dataChannelOpen && (
