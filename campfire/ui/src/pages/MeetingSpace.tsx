@@ -157,6 +157,7 @@ export const MeetingSpace: FC<any> = observer(() => {
                   const audio = new Audio(hangup);
                   audio.volume = 0.3;
                   audio.play();
+                  urchatStore.hangup();
                   mediaStore.stopAllTracks();
                   push("/");
                 }}
@@ -184,7 +185,7 @@ export const MeetingSpace: FC<any> = observer(() => {
           {/* TODO load contact store into local storage and lookup sigil metadata */}
           <Ship patp={"~" + deSig(urchatStore.urbit.ship)} color="#000000" />
           {urchatStore.dataChannelOpen && (
-            <Ship patp={"~" + deSig(urchatStore.ongoingCall.call.peer)} />
+            <Ship patp={"~" + deSig(urchatStore.ongoingCall.call.peer)} color="#FFFFFF" />
           )}
         </Card>
         <SectionHeader

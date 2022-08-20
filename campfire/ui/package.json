@@ -28,6 +28,7 @@
     "styled-system": "^5.1.5",
     "switchboard": "file:../../packages/switchboard-js",
     "urbit-ob": "^5.0.1",
+    "yup": "^0.32.11",
     "zustand": "^3.5.7"
   },
   "devDependencies": {

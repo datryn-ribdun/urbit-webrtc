@@ -112,7 +112,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
           (p) =>
             p.includes(deSig(meetingCode.state.value)) ||
             deSig(meetingCode.state.value) === "" ||
-            !meetingCode
+            !meetingCode.state.value
         ),
       [palsStore.mutuals, meetingCode.state.value]
     ) || [];
@@ -206,7 +206,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
         <IncomingCall
           caller={urchatStore.incomingCall?.call.peer}
           answerCall={answerCall}
-          rejectCall={() => urchatStore.rejectCall}
+          rejectCall={() => urchatStore.rejectCall()}
         />
       )}
       <div
@@ -257,7 +257,7 @@ export const meetingCodeForm = (
     form: form,
     initialValue: defaults.meetingCode || "",
     validate: (patp: string) => {
-      if (patp.length > 1 && isValidPatp(patp)) {
+      if (patp.length > 1 && isValidPatp("~" + deSig(patp))) {
         return { error: undefined, parsed: patp };
       }
 
