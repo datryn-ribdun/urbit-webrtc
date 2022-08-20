@@ -23,6 +23,9 @@ export const StartMeetingPage: FC<any> = observer(() => {
   const { push } = useHistory();
   // const audio = new Audio(ring);
 
+  //fetch icepond config initally so we can display them in "Settings"
+  urchatStore.startIcepond();
+
   const isSecure =
     location.protocol.startsWith("https") || location.hostname === "localhost";
 
@@ -254,7 +257,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
                 Settings
               </Text>
             </DialogTrigger>
-            <DialogContent className="w-64 min-h-48 max-w-xl pt-4 pb-6 px-8">
+            <DialogContent className="w-200 min-h-60 max-w-xl pt-4 pb-6 px-8">
               <IceServers />
             </DialogContent>
           </Dialog>
