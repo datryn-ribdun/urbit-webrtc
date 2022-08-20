@@ -17,7 +17,7 @@ export const Call = observer(() => {
   var localScreenShare = null;
   var remoteScreenShare = null;
   if (hasRemoteScreenshare) {
-    console.log("has remote screesnahre");
+    console.log("has remote screenshare");
     const screensharetrack = mediaStore.remote.getVideoTracks()[1];
     remoteScreenShare = new MediaStream([screensharetrack]);
   }
@@ -29,7 +29,7 @@ export const Call = observer(() => {
 
   useEffect(() => {
     const enter: HTMLAudioElement = new Audio(enterSound);
-    enter.volume = 8;
+    enter.volume = 0.8;
     enter.play();
   }, []);
 
