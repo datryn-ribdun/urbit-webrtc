@@ -28,7 +28,10 @@ export const DialogContent = React.forwardRef<
     <div className={`relative ${className}`}>
       {children}
       {showCloseIcon && (
-        <RadixDialog.Close className="absolute top-2 right-2 text-gray-300 dark:text-gray-700 hover:text-gray-400 dark:hover:text-gray-500 focus:text-gray-400 dark:focus:text-gray-500 default-ring rounded">
+        <RadixDialog.Close
+          autoFocus={false}
+          className="absolute top-2 right-2 text-gray-300 dark:text-gray-700 hover:text-gray-400 dark:hover:text-gray-500 focus:text-gray-400 dark:focus:text-gray-500 default-ring rounded"
+        >
           <Close className="w-7 h-7" primary="fill-current" />
         </RadixDialog.Close>
       )}

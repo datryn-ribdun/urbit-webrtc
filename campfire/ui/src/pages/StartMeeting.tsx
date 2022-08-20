@@ -5,6 +5,7 @@ import { deSig } from "@urbit/api";
 import { isValidPatp } from "urbit-ob";
 import { Button, Flex, Input, Text, theme } from "@holium/design-system";
 import { Campfire } from "../icons/Campfire";
+import { Dialog, DialogContent, DialogTrigger } from "../components/Dialog";
 import { useStore } from "../stores/root";
 import { PalsList } from "../components/PalsList";
 import { SecureWarning } from "../components/SecureWarning";
@@ -12,6 +13,7 @@ import { IncomingCall } from "../components/IncomingCall";
 import packageJson from "../../package.json";
 import { createField, createForm } from "mobx-easy-form";
 import { resetRing, ringing } from "../stores/media";
+import { IceServers } from "../components/IceServers";
 
 export const StartMeetingPage: FC<any> = observer(() => {
   console.log("Rerender StartMeetingPage");
@@ -226,23 +228,36 @@ export const StartMeetingPage: FC<any> = observer(() => {
         }}
       >
         <Flex alignItems="flex-start" flexDirection="row">
-          <Text fontSize={4} fontWeight={200} opacity={0.9}>
+          <Text fontSize={2} fontWeight={500} opacity={0.5}>
             v{packageJson.version}
           </Text>
           <a href="/docs/campfire/overview">
             <Text
               ml={5}
-              fontSize={4}
+              fontSize={2}
               fontWeight={200}
-              opacity={0.9}
+              opacity={0.5}
               title="on %docs"
             >
               Documentation
             </Text>
           </a>
-          {/* <Text ml={5} fontSize={4} fontWeight={200} opacity={0.9} onClick={() => setShowSettings(true)}>
-            Settings
-          </Text> */}
+          <Dialog>
+            <DialogTrigger className="flex justify-center items-center">
+              <Text
+                ml={5}
+                fontSize={2}
+                fontWeight={200}
+                opacity={0.5}
+                title="settings"
+              >
+                Settings
+              </Text>
+            </DialogTrigger>
+            <DialogContent className="w-64 min-h-48 max-w-xl pt-4 pb-6 px-8">
+              <IceServers />
+            </DialogContent>
+          </Dialog>
         </Flex>
       </div>
     </Flex>
