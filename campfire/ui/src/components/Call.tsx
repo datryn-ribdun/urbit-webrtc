@@ -1,9 +1,11 @@
 import classNames from "classnames";
-import React from "react";
+import React, { useEffect } from "react";
 import { useStore } from "../stores/root";
 import { Controls } from "./Controls";
 import { Video } from "./Video";
 import { observer } from "mobx-react";
+import enterSound from "../assets/enter-call.wav";
+import { Flex } from "@holium/design-system";
 
 export const Call = observer(() => {
   const { mediaStore } = useStore();
@@ -24,6 +26,12 @@ export const Call = observer(() => {
     const screensharetrack = mediaStore.local.getVideoTracks()[1];
     localScreenShare = new MediaStream([screensharetrack]);
   }
+
+  useEffect(() => {
+    const enter: HTMLAudioElement = new Audio(enterSound);
+    enter.volume = 8;
+    enter.play();
+  }, []);
 
   return (
     <>
@@ -73,7 +81,16 @@ export const Call = observer(() => {
             />
           )}
         </div>
-        <Controls className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" />
+        <Flex
+          className="transform"
+          position="absolute"
+          left={30}
+          right={30}
+          bottom={30}
+        >
+          <Controls />
+        </Flex>
+        {/* <Controls className="absolute z-10 bottom-0 left-1/2 transform -translate-x-1/2" /> */}
       </div>
     </>
   );

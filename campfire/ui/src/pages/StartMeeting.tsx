@@ -10,9 +10,8 @@ import { PalsList } from "../components/PalsList";
 import { SecureWarning } from "../components/SecureWarning";
 import { IncomingCall } from "../components/IncomingCall";
 import packageJson from "../../package.json";
-import callwav from "../assets/enter-call.wav";
-import ring from "../assets/ring.wav";
 import { createField, createForm } from "mobx-easy-form";
+import { resetRing, ringing } from "../stores/media";
 
 export const StartMeetingPage: FC<any> = observer(() => {
   console.log("Rerender StartMeetingPage");
@@ -20,6 +19,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
   const { form, meetingCode } = useMemo(meetingCodeForm, []);
   const { mediaStore, urchatStore, palsStore } = useStore();
   const { push } = useHistory();
+  // const audio = new Audio(ring);
 
   const isSecure =
     location.protocol.startsWith("https") || location.hostname === "localhost";
@@ -47,9 +47,9 @@ export const StartMeetingPage: FC<any> = observer(() => {
 
   const placeCall = async (ship: string) => {
     // TODO make "ring" loop until the call is fully connected, then play "enter-call"
-    const audio = new Audio(ring);
-    audio.volume = 0.3;
-    audio.play();
+    ringing.volume = 0.8;
+    ringing.loop = true;
+    ringing.play();
     mediaStore.resetStreams();
     const call = await urchatStore.placeCall(ship, (call) => {
       push(`/chat/${call.conn.uuid}`);
@@ -58,6 +58,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
       urchatStore.setMessages([]);
       const channel = call.conn.createDataChannel("campfire");
       channel.onopen = () => {
+        ringing.pause();
         // called when we the connection to the peer is open - aka the call has started
         console.log("data channel opened");
         urchatStore.setDataChannelOpen(true);
@@ -127,7 +128,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
       width="100%"
       justifyContent="center"
       alignItems="center"
-      flexDirection="columns"
+      flexDirection="column"
     >
       <Flex
         minWidth={650}
@@ -169,6 +170,7 @@ export const StartMeetingPage: FC<any> = observer(() => {
                     meetingCode.computed.error !== undefined
                   }
                   onClick={() => {
+                    resetRing();
                     const formData = form.actions.submit();
                     placeCall(deSig(formData.meetingCode));
                   }}
@@ -205,8 +207,14 @@ export const StartMeetingPage: FC<any> = observer(() => {
       {isSecure && urchatStore.incomingCall && (
         <IncomingCall
           caller={urchatStore.incomingCall?.call.peer}
-          answerCall={answerCall}
-          rejectCall={() => urchatStore.rejectCall()}
+          answerCall={() => {
+            ringing.pause();
+            answerCall();
+          }}
+          rejectCall={() => {
+            ringing.pause();
+            urchatStore.rejectCall();
+          }}
         />
       )}
       <div
