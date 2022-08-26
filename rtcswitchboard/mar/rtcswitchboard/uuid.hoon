@@ -1,5 +1,5 @@
-/-  rtcrtcswitchboard
-/+  *rtcrtcswitchboard
+/-  rtcswitchboard
+/+  *rtcswitchboard
 |_  uuid=@ta
 ++  grab
   |%
